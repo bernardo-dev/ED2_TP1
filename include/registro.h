@@ -3,9 +3,15 @@
 
 typedef struct {
   int chave;
-  long dado1;
-  char dado2[1002];
-  char dado3[5002];
+  long int dado1;
+  char dado2[1001];
+  char dado3[5001];
 } Registro;
 
 #endif
+// Arquivos com registros
+// 100
+// 1k
+// 10k
+// 100k
+// 1M
