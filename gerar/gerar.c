@@ -55,7 +55,7 @@ void decrescente() {
   pCrescente = fopen("crescente.bin", "rb");
 
   FILE *pDecrescente = NULL;
-  pDecrescente = fopen("descrescente.bin", "wb");
+  pDecrescente = fopen("decrescente.bin", "wb");
 
   for (int i = MAX; i >= 1; i--) {
     fseek(pCrescente, (i - 1) * sizeof(Registro), SEEK_SET);
@@ -67,9 +67,49 @@ void decrescente() {
   fclose(pDecrescente);
 }
 
+void aleatorio() {
+  // Inicializa o gerador de numeros aleatorios
+  srand(42);
+
+  Registro reg;
+  memset(&reg, 0, sizeof(Registro));
+
+  FILE *pCrescente = NULL;
+  pCrescente = fopen("crescente.bin", "rb");
+
+  FILE *pAleatorio = NULL;
+  pAleatorio = fopen("aleatorio.bin", "wb");
+
+  // Cria um vetor com os indices dos registros
+  int *vetor = (int *)malloc(MAX * sizeof(int));
+  for (int i = 0; i < MAX; i++) {
+    vetor[i] = i;
+  }
+
+  // Embaralha o vetor
+  for (int i = 0; i < MAX; i++) {
+    int posicao = rand() % MAX;
+    int aux = vetor[i];
+    vetor[i] = vetor[posicao];
+    vetor[posicao] = aux;
+  }
+
+  // Escreve os registros em ordem aleatoria
+  for (int i = 0; i < MAX; i++) {
+    fseek(pCrescente, vetor[i] * sizeof(Registro), SEEK_SET);
+    fread(&reg, sizeof(Registro), 1, pCrescente);
+    fwrite(&reg, sizeof(Registro), 1, pAleatorio);
+  }
+
+  fclose(pCrescente);
+  fclose(pAleatorio);
+  free(vetor);
+}
+
 int main() {
 
   // crescente();
-  decrescente();
+  // decrescente();
+  aleatorio();
   return 0;
 }
