@@ -6,6 +6,8 @@
 #include <string.h>
 #include <time.h>
 
+#define MAX 1000000
+
 long int gerarLongIntAleatorio() {
   long int parteAlta = ((long int)rand() << 32) | rand();
   long int parteBaixa = ((long int)rand() << 32) | rand();
@@ -24,27 +26,50 @@ void gerarDadoAleatorio(char *dado, int tamanho) {
   dado[tamanho - 1] = '\0';
 }
 
-int main() {
+void crescente() {
   // Inicializa o gerador de numeros aleatorios
   srand(42);
 
   Registro reg;
   memset(&reg, 0, sizeof(Registro));
-  int quantidade = 1000000;
 
   FILE *pArquivo = NULL;
   pArquivo = fopen("crescente.bin", "wb");
 
-  for (int i = 1; i <= quantidade; i++) {
+  for (int i = 1; i <= MAX; i++) {
     reg.chave = i;
     reg.dado1 = gerarLongIntAleatorio();
     gerarDadoAleatorio(reg.dado2, 1001);
     gerarDadoAleatorio(reg.dado3, 5001);
     fwrite(&reg, sizeof(Registro), 1, pArquivo);
-    // printf("Registro %d: chave(%-5d) dado1(%-21ld) dado2(%-5.5s) dado3(%-5.5s)\n",
-    //        i, reg.chave, reg.dado1, reg.dado2, reg.dado3);
   }
 
   fclose(pArquivo);
+}
+
+void decrescente() {
+  Registro reg;
+  memset(&reg, 0, sizeof(Registro));
+
+  FILE *pCrescente = NULL;
+  pCrescente = fopen("crescente.bin", "rb");
+
+  FILE *pDecrescente = NULL;
+  pDecrescente = fopen("descrescente.bin", "wb");
+
+  for (int i = MAX; i >= 1; i--) {
+    fseek(pCrescente, (i - 1) * sizeof(Registro), SEEK_SET);
+    fread(&reg, sizeof(Registro), 1, pCrescente);
+    fwrite(&reg, sizeof(Registro), 1, pDecrescente);
+  }
+
+  fclose(pCrescente);
+  fclose(pDecrescente);
+}
+
+int main() {
+
+  // crescente();
+  decrescente();
   return 0;
 }
