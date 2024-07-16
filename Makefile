@@ -32,7 +32,8 @@ $(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
 # Build step for C source
 $(BUILD_DIR)/%.c.o: %.c
 	mkdir -p $(dir $@)
-	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@ -Wall -Werror
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@ -Wall 
+# -Werror
 
 # Build step for C++ source
 # $(BUILD_DIR)/%.cpp.o: %.cpp

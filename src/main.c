@@ -1,58 +1,56 @@
-// #include "../include/registro.h"
+#include "../include/acessoSequencial.h"
+#include "../include/utils.h"
 #include <stdio.h>
 #include <stdlib.h>
-// #include <string.h>
-
-// pesquisa <método> <quantidade> <situação> <chave> [-P]
-// onde:
-//  <método> representa o método de pesquisa externa a ser executado,
-// podendo ser um número inteiro de 1 a 4, de acordo com a ordem dos métodos
-// mencionados;  <quantidade> representa a quantidade de registros do arquivo
-// considerado;  <situação> representa a situação de ordem do arquivo,
-// podendo ser 1 (arquivo ordenado ascendentemente), 2 (arquivo ordenado
-// descendentemente) ou 3 (arquivo desordenado aleatoriamente);  <chave>
-// representa a chave a ser pesquisada no arquivo considerado;  [-P]
-// representa um argumento opcional que deve ser colocado quando se deseja que
-// as chaves de pesquisa dos registros do arquivo considerado sejam apresentadas
-// na tela.
-
-// 1 acesso sequencial indexado
-// 2 árvore binária de pesquisa adequada a memória externa
-// 3 árvore B
-// 4 árvore B*
-
-void imprimirArgumentos(int argc, char *argv[]) {
-  char metodos[4][100] = {
-      "Acesso sequencial indexado",
-      "Árvore binária adequada a memória externa",
-      "Árvore B",
-      "Árvore B*"};
-
-  char situacao[3][100] = {"ascendentemente", "descendentemente",
-                           "aleatoriamente"};
-
-  if (argc < 5) {
-    printf("\033[1;31mNúmero de argumentos inválido\033[0m\n");
-    return;
-  }
-
-  printf("\033[1;34mMétodo: %s\033[0m\n", metodos[atoi(argv[1]) - 1]);
-  printf("\033[1;34mQuantidade: %d\033[0m\n", atoi(argv[2]));
-  printf("\033[1;34mSituação: %s\033[0m\n", situacao[atoi(argv[3]) - 1]);
-  printf("\033[1;34mChave: %d\033[0m\n", atoi(argv[4]));
-  if (argc == 6) {
-    printf("\033[1;34mArgumento opcional: %s\033[0m\n", argv[5]);
-  }
-}
 
 int main(int argc, char *argv[]) {
+  // Verifica se a quantidade de argumentos é válida
+  if (argc < 5) {
+    printf("\033[1;31mNúmero de argumentos inválido!\033[0m\n");
+    return 0;
+  }
+
   int metodo = atoi(argv[1]);
+  int quantidade = atoi(argv[2]);
+  int situacao = atoi(argv[3]);
+  int chave = atoi(argv[4]);
+
+  FILE *pArquivoRegistros = NULL;
+  pArquivoRegistros = abrirArquivoRegistros(situacao);
+  if (pArquivoRegistros == NULL) {
+    printf("\033[1;31mErro ao abrir o arquivo\033[0m\n");
+  }
+
+  // Sempre declare as variaveis fora do switch
+
+  // Variaveis para o metodo 1
+  TipoIndice tabelaIndices[MAXTABELA];
+  TipoItem item;
+  int pos, cont;
+
   switch (metodo) {
   case 1:
     imprimirArgumentos(argc, argv);
-    // Teste esse caso com o comando:
-    // ./build/pesquisa 1 1000000 1 500000 -P
-    // TODO: Implementar acesso sequencial indexado
+
+    cont = 0; // contador de itens
+    pos = 0;  // posicao da pagina
+
+    // gera a tabela de indice das paginas
+    while (fread(&item, sizeof(TipoItem), 1, pArquivoRegistros) == 1) {
+      if (cont % ITENSPAGINA == 0) {
+        tabelaIndices[pos].chave = item.chave;
+        tabelaIndices[pos].posicao = pos + 1;
+        pos++; 
+      }
+    }
+
+    fflush(stdout); // limpa o buffer de saida 
+    
+    if (pesquisaAcessoSequencial(tabelaIndices, pos, &item, pArquivoRegistros)) {
+      printf("\033[1;32mItem encontrado!\033[0m\n");
+    } else {
+      printf("\033[1;31mItem não encontrado!\033[0m\n");
+    }     
     break;
   case 2:
     imprimirArgumentos(argc, argv);

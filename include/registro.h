@@ -9,9 +9,3 @@ typedef struct {
 } Registro;
 
 #endif
-// Arquivos com registros
-// 100
-// 1k
-// 10k
-// 100k
-// 1M

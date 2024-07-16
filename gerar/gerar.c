@@ -108,8 +108,8 @@ void aleatorio() {
 
 int main() {
 
-  // crescente();
-  // decrescente();
+  crescente();
+  decrescente();
   aleatorio();
   return 0;
 }

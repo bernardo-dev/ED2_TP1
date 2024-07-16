@@ -1,7 +1,4 @@
 #include "../include/acessoSequencial.h"
-#include <complex.h>
-#include <stdbool.h>
-#include <stdio.h>
 
 bool pesquisaAcessoSequencial(TipoIndice tabelaIndices[], int tam,
                               TipoItem *pItem, FILE *pArquivo) {
@@ -31,7 +28,7 @@ bool pesquisaAcessoSequencial(TipoIndice tabelaIndices[], int tam,
     // le a pagina desejada do arquivo
     deslocamento =
         (tabelaIndices[i - 1].posicao - 1) * ITENSPAGINA * sizeof(TipoItem);
-    fseek(pArquivo, 0, SEEK_END);
+    fseek(pArquivo, deslocamento, SEEK_END);
     fread(&pagina, sizeof(TipoItem), quantidadeItens, pArquivo);
 
     // pesquisa sequencial na pagina lida
