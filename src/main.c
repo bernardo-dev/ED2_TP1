@@ -36,22 +36,26 @@ int main(int argc, char *argv[]) {
     pos = 0;  // posicao da pagina
 
     // gera a tabela de indice das paginas
-    while (fread(&item, sizeof(TipoItem), 1, pArquivoRegistros) == 1) {
-      if (cont % ITENSPAGINA == 0) {
-        tabelaIndices[pos].chave = item.chave;
-        tabelaIndices[pos].posicao = pos + 1;
-        pos++; 
+    for (int i = 0; i < quantidade; i++) {
+      if (fread(&item, sizeof(TipoItem), 1, pArquivoRegistros) == 1) {
+        cont++;
+        if (cont % ITENSPAGINA == 1) {
+          tabelaIndices[pos].chave = item.chave;
+          tabelaIndices[pos].posicao = pos + 1;
+          pos++;
+        }
       }
     }
 
-    fflush(stdout); // limpa o buffer de saida
+    fflush(stdout);     // limpa o buffer de saida
     item.chave = chave; // chave a ser pesquisada
-    
-    if (pesquisaAcessoSequencial(tabelaIndices, pos, &item, pArquivoRegistros)) {
+
+    if (pesquisaAcessoSequencial(tabelaIndices, pos, &item,
+                                 pArquivoRegistros)) {
       printf("\033[1;32mItem encontrado!\033[0m\n");
     } else {
       printf("\033[1;31mItem não encontrado!\033[0m\n");
-    }     
+    }
     break;
   case 2:
     imprimirArgumentos(argc, argv);

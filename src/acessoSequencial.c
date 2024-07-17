@@ -11,7 +11,7 @@ bool pesquisaAcessoSequencial(TipoIndice tabelaIndices[], int tam,
 
   // procura a página onde o item pode se encontrar
   i = 0;
-  while ((i < tam) && (tabelaIndices[i].chave >= pItem->chave)) {
+  while ((i < tam) && (tabelaIndices[i].chave <= pItem->chave)) {
     i++;
   }
 
@@ -31,7 +31,7 @@ bool pesquisaAcessoSequencial(TipoIndice tabelaIndices[], int tam,
     // le a pagina desejada do arquivo
     deslocamento =
         (tabelaIndices[i - 1].posicao - 1) * ITENSPAGINA * sizeof(TipoItem);
-    fseek(pArquivo, deslocamento, SEEK_END);
+    fseek(pArquivo, deslocamento, SEEK_SET);
     fread(&pagina, sizeof(TipoItem), quantidadeItens, pArquivo);
 
     // pesquisa sequencial na pagina lida
