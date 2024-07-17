@@ -5,8 +5,8 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-const int ITENSPAGINA = 1024;
-const int MAXTABELA = 1024;
+extern const int ITENSPAGINA;
+extern const int MAXTABELA;
 
 // Estrutura de índice da tabela de paginas
 typedef struct {

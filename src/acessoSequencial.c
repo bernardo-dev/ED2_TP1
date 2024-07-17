@@ -1,5 +1,8 @@
 #include "../include/acessoSequencial.h"
 
+const int ITENSPAGINA = 1024;
+const int MAXTABELA = 1024;
+
 bool pesquisaAcessoSequencial(TipoIndice tabelaIndices[], int tam,
                               TipoItem *pItem, FILE *pArquivo) {
   TipoItem pagina[ITENSPAGINA];
@@ -8,7 +11,7 @@ bool pesquisaAcessoSequencial(TipoIndice tabelaIndices[], int tam,
 
   // procura a página onde o item pode se encontrar
   i = 0;
-  while (i < tam && tabelaIndices[i].chave <= pItem->chave) {
+  while ((i < tam) && (tabelaIndices[i].chave >= pItem->chave)) {
     i++;
   }
 

@@ -44,7 +44,8 @@ int main(int argc, char *argv[]) {
       }
     }
 
-    fflush(stdout); // limpa o buffer de saida 
+    fflush(stdout); // limpa o buffer de saida
+    item.chave = chave; // chave a ser pesquisada
     
     if (pesquisaAcessoSequencial(tabelaIndices, pos, &item, pArquivoRegistros)) {
       printf("\033[1;32mItem encontrado!\033[0m\n");
@@ -68,5 +69,7 @@ int main(int argc, char *argv[]) {
     printf("Método não encontrado\n");
     break;
   }
+
+  fecharArquivoRegistros(pArquivoRegistros);
   return 0;
 }
