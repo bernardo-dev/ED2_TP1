@@ -49,3 +49,9 @@ clean:
 # Makefiles. Initially, all the .d files will be missing, and we don't want those
 # errors to show up.
 -include $(DEPS)
+
+# Build and run valgrind on the built executable
+.PHONY: valgrind
+valgrind: CFLAGS += -g
+valgrind: $(BUILD_DIR)/$(TARGET_EXEC)
+#	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes $< 1 10000 1 5

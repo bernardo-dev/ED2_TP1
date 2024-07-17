@@ -10,3 +10,5 @@
 # Ignora arquivos com o nome build em qualquer nivel de diretorio
 **/build/
 
+#ignora .vscode
+.vscode/
