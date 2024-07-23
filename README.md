@@ -25,7 +25,7 @@ O trabalho consiste em um estudo da complexidade de desempenho dos seguintes mé
 
 ## Entrega do Trabalho
 
-- O código-fonte e o relatório devem ser submetidos ao Moodle até às 10h do dia 16/05.
+- O código-fonte e o relatório devem ser submetidos ao Moodle até às 13h do dia 08/08.
 - O programa deve ser apresentado pelo grupo ao professor na aula do dia 16/05.
 
 ## Integrantes do Grupo
