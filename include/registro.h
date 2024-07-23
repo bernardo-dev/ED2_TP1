@@ -8,4 +8,6 @@ typedef struct {
   char dado3[5001];
 } Registro;
 
+void imprimirRegistro(Registro *);
+
 #endif

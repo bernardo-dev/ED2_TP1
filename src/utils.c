@@ -44,3 +44,11 @@ FILE *abrirArquivoRegistros(int situacao) {
 }
 
 void fecharArquivoRegistros(FILE *pArquivo) { fclose(pArquivo); }
+
+void imprimirMetricas(Metrica metrica) {
+  printf("\033[1;34mLeituras: %d\033[0m\n", metrica.leituras);
+  printf("\033[1;34mEscritas: %d\033[0m\n", metrica.escritas);
+  printf("\033[1;34mComparacoes: %d\033[0m\n", metrica.comparacoes);
+  printf("\033[1;34mTempo: %f segundos\033[0m\n",
+         (double)(metrica.fim - metrica.inicio) / CLOCKS_PER_SEC);
+}
