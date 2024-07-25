@@ -1,4 +1,5 @@
 #include "../include/acessoSequencial.h"
+#include "../include/arvorebin.h"
 #include "../include/utils.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -32,6 +33,10 @@ int main(int argc, char *argv[]) {
   char nomeArquivoIndices[100];
   int quantidadeIndices = 0;
   Metrica metrica;
+
+// Variáveis para o método 2
+FILE *arquivoArvore= NULL;
+Registro	*registro;
 
   switch (metodo) {
   case 1:
@@ -110,8 +115,49 @@ int main(int argc, char *argv[]) {
     }
     break;
   case 2:
-    imprimirArgumentos(argc, argv);
-    // TODO: Implementar árvore binária de pesquisa adequada a memória externa
+    //imprimirArgumentos(argc, argv);
+    if(arquivoArvore = fopen("arvorebin.bin","rb") == NULL) //Não existe árvore feita
+    {
+      // Abre o arquivo necessario para a criação da árvore
+      if(situacao == 1) {arquivoArvore = fopen("crescente.bin","rb"); if(arquivoArvore == NULL){printf("Arquivo de dados nao encontrado!!!!\n"); return 0;}}
+      if(situacao == 2) {arquivoArvore = fopen("decrescente.bin","rb"); if(arquivoArvore == NULL){printf("Arquivo de dados nao encontrado!!!!\n"); return 0;}}
+      if(situacao == 3) {arquivoArvore = fopen("aleatorio.bin","rb"); if(arquivoArvore == NULL){printf("Arquivo de dados nao encontrado!!!!\n"); return 0;}}
+
+      // Monta a árvore em memória interna
+      ArvoreBin arvore = {NULL};
+      montaArvore(&arvore, arquivoArvore);
+			fclose(arquivoArvore);
+
+      // Monta "arvorebin.bin" onde a arvore em memoria externa esta localizada
+      if (arvore.raiz != NULL)
+			{
+				// Cria o arquivo "arvoreBin.bin"
+				arquivoArvore = fopen("arvoreBin.bin", "wb");
+				if (arquivoArvore != NULL)
+				{
+					pos = 0;
+          
+					montaArquivo(arquivoArvore, arvore.raiz, &pos);
+					fclose(arquivoArvore);
+					// Reabre o arquivo "arvoreBin.bin" para leitura
+					arquivoArvore = fopen("arvoreBin.bin", "rb");
+					if (arquivoArvore == NULL)
+					{
+						printf("Erro ao reabrir o arquivo ''arvoreBin.bin'' após criação.\n");
+					}
+				}
+				else
+				{
+					printf("Erro ao criar o arquivo ''arvoreBin.bin''.\n");
+				}
+			}
+			else
+			{
+				printf("Erro ao montar a árvore.\n");
+			}
+		}
+    registro = buscaChave(arquivoArvore, chave, 0);
+    imprimirRegistro(registro);
     break;
   case 3:
     imprimirArgumentos(argc, argv);

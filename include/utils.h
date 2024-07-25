@@ -3,6 +3,7 @@
 
 #include <time.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 typedef struct {
   unsigned int leituras;
