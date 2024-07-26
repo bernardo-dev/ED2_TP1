@@ -1,37 +1,31 @@
 #ifndef B_ESTRELA
 #define B_ESTRELA
 
+#include "../include/registro.h"
+
 #define MM 4
 #define MM2 2
 
-typedef int chaves;
-typedef struct registro {
-    chaves chave;
-    long int dado1;
-    char dado2[1000];
-    char dado3[5000];
-} registro;
+typedef enum {Interna, Externa} TipoIntExt;
 
-typedef enum {interna, externa} TipoIntExt;
+typedef struct TipoPagina* Apontador;
 
-typedef struct pagina* apontador;
-
-typedef struct pagina {
-    TipoIntExt pt;
+typedef struct TipoPagina {
+    TipoIntExt Pt;
     union {
         struct {
             int ni;
-            chaves ri[MM];
-            apontador pi[MM + 1];
-        } pagInt;
+            Chave ri[MM];
+            Apontador pi[MM + 1];
+        } U0;
         struct {
             int ne;
-            registro re[MM2];
-        } pagFolha;
-    } tipo;
-} pagina;
+            TipoRegistro re[MM2];
+        } U1;
+    } UU;
+} TipoPagina;
 
 // Protótipos das funções
-bool Pesquisa(registro *x, apontador *ap);
+void Pesquisa(TipoRegistro *x, Apontador *ap);
 
 #endif

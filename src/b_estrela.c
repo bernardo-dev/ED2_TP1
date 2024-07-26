@@ -4,150 +4,180 @@
 #include <string.h>
 #include "../include/b_estrela.h"
 #include "../include/utils.h"
+#include "../include/registro.h"
 
-// FAZER INSERÇÃO PARA CRIAR A ARVORE B*
-
-void inicializa(apontador arvore){
+void inicializa(TipoApontador arvore){
     arvore = NULL;
 }
 
-void insereNaPag(apontador ap, registro reg, apontador apDir){
+void insereNaPag(TipoApontador Ap, Registro Reg, TipoApontador ApDir){
+    //variaveis para metricas
+    Metrica metrica;
+    metrica.comparacoes = 0;
     short naoAchouPosicao;
     int k;
-    k = ap->n;
-    naoAchouPosicao = (k > 0);
-    while(naoAchouPosicao){
-        if(reg.chave >= ap->r[k-1].chave){
-            naoAchouPosicao = FALSE;
-            break;
+
+    if((*Ap)->Pt == Interna){ //Inserção em página interna
+        k = Ap->UU.U0.ni;
+        naoAchouPosicao = (k > 0);
+        while(naoAchouPosicao){
+            metrica.comparacoes++;
+            if(Reg.chave >= Ap->UU.U0.ri[k-1]){
+                naoAchouPosicao = FALSE;
+                break;
+            }
+            Ap->UU.U0.ri[k] = Ap->UU.U0.ri[k-1];
+            Ap->UU.U0.pi[k+1] = Ap->UU.U0.pi[k];
+            k--;
+            if(k < 1)
+                naoAchouPosicao = FALSE;
         }
-        ap->r[k] = ap->r[k-1];
-        ap->p[k+1] = ap->p[k];
-        k--;
-        if(k < 1)
-            naoAchouPosicao = FALSE;
+        Ap->UU.U0.ri[k] = Reg.chave;
+        Ap->UU.U0.pi[k+1] = ApDir;
+        Ap->UU.U0.ni++;
+        return;
+    } else if ((*Ap)->Pt == Externa){ //Inserção em pagina folha/externa
+        k = Ap->UU.U1.ne;
+        naoAchouPosicao = (k > 0);
+        while(naoAchouPosicao){
+            metrica.comparacoes++;
+            if(Reg.chave >= Ap->UU.U1.re[k-1].chave){
+                naoAchouPosicao = FALSE;
+                break;
+            }
+            Ap->UU.U1.re[k] = Ap->UU.U1.re[k-1];
+            k--;
+            if(k < 1)
+                naoAchouPosicao = FALSE;
+        }
+        Ap->UU.U1.re[k] = Reg;
+        Ap->UU.U1.ne++;
+        return;
     }
-    ap->r[k] = reg;
-    ap->p[k+1] = apDir;
-    ap->n++;
 }
 
-void ins(registro reg, apontador ap, short *cresceu, registro *regRetorno, apontador *apRetorno){
+void ins(Registro Reg, TipoApontador Ap, short *Cresceu, Registro *RegRetorno, TipoApontador *ApRetorno){
     long i = 1;
     long j;
-    apontador apTemp;
+    TipoApontador ApTemp;
 
-    if(ap == NULL){
-        *cresceu = TRUE;
-        (*regRetorno) = reg;
-        (*apRetorno) = NULL;
+    if(Ap == NULL){
+        *Cresceu = TRUE;
+        (*RegRetorno) = Reg;
+        (*ApRetorno) = NULL;
         return;
     }
 
-    while(i < ap->n && reg.chave > ap->r[i-1].chave)
+    while(i < Ap->n && Reg.chave > Ap->r[i-1].chave)
         i++;
 
-    if(reg.chave == ap->r[i-1].chave){ // registro ja esta presente
-        *cresceu = FALSE;
+    if(Reg.chave == Ap->r[i-1].chave){ // Registro ja esta presente
+        *Cresceu = FALSE;
         return;
     }
 
-    if(reg.chave < ap->r[i-1].chave)
+    if(Reg.chave < Ap->r[i-1].chave)
         i--;
 
-    ins(reg, ap->p[i], cresceu, regRetorno, apRetorno);
+    ins(Reg, Ap->p[i], Cresceu, RegRetorno, ApRetorno);
 
-    if(!*cresceu)
+    if(!*Cresceu)
         return;
 
-    if(ap->n < MM){ // Pagina tem espaço
-        insereNaPag(ap, *regRetorno, *apRetorno);
-        *cresceu = FALSE;
+    if(Ap->n < MM){ // Pagina tem espaço
+        insereNaPag(Ap, *RegRetorno, *ApRetorno);
+        *Cresceu = FALSE;
         return;
     }
 
-    // overflow: pagina tem que ser dividida
-    apTemp = (apontador)malloc(sizeof(pagina));
-    apTemp->n = 0;
-    apTemp->p[0] = NULL;
+    // overflow: Pagina tem que ser dividida
+    ApTemp = (TipoApontador)malloc(sizeof(TipoPagina));
+    ApTemp->n = 0;
+    ApTemp->p[0] = NULL;
 
     if(i < M+1){
-        insereNaPag(apTemp, ap->r[MM-1], ap->p[MM]);
-        ap->n--;
-        insereNaPag(ap, *regRetorno, *apRetorno);
+        insereNaPag(ApTemp, Ap->r[MM-1], Ap->p[MM]);
+        Ap->n--;
+        insereNaPag(Ap, *RegRetorno, *ApRetorno);
     }
     else
-        insereNaPag(apTemp, *regRetorno, *apRetorno);
+        insereNaPag(ApTemp, *RegRetorno, *ApRetorno);
 
     for(j=M+2; j<=MM; j++)
-        insereNaPag(apTemp, ap->r[j-1], ap->p[j]);
+        insereNaPag(ApTemp, Ap->r[j-1], Ap->p[j]);
 
-    ap->n = M;
+    Ap->n = M;
 
     // Tentativa de mesclar com o irmão se houver  
-    if (ap->p[M + 1]) { // checar se tem um irmão do lado direito  
-        // Tem que fazer a lógica para combinar se o irmão tem mais de n registros  
-        if (apTemp->n + ap->p[M + 1]->n <= MM) {  
+    if (Ap->p[M + 1]) { // checar se tem um irmão do lado direito  
+        // Tem que fazer a lógica para combinar se o irmão tem mais de n Registros  
+        if (ApTemp->n + Ap->p[M + 1]->n <= MM) {  
             // Combinar os nós  
-            for (j = 0; j < apTemp->n; j++) {  
-                ap->p[M + 1]->r[ap->p[M + 1]->n++] = apTemp->r[j];  
+            for (j = 0; j < ApTemp->n; j++) {  
+                Ap->p[M + 1]->r[Ap->p[M + 1]->n++] = ApTemp->r[j];  
             }  
-            free(apTemp); // liberar a memória do nó temporário  
+            free(ApTemp); // liberar a memória do nó temporário  
             return;  
         }  
     }  
     
-    ap->p[M + 1] = apTemp; // não conseguiu combinar, somente adiciona  
-    *regRetorno = ap->r[M];  
-    *apRetorno = apTemp;  
+    Ap->p[M + 1] = ApTemp; // não conseguiu combinar, somente adiciona  
+    *RegRetorno = Ap->r[M];  
+    *ApRetorno = ApTemp;  
 }
 
-void insere(registro reg, apontador *ap){
-    short cresceu;
-    registro regRetorno;
-    pagina *apRetorno, *apTemp;
+void insere(Registro Reg, TipoApontador *Ap){
+    short Cresceu;
+    Registro RegRetorno;
+    TipoPagina *ApRetorno, *ApTemp;
 
-    ins(reg, *ap, &cresceu, &regRetorno, &apRetorno);
+    ins(Reg, *Ap, &Cresceu, &RegRetorno, &ApRetorno);
 
-    if(cresceu){  // arvore cresce na altura pela raiz
-        apTemp = (pagina*)malloc(sizeof(pagina));
-        apTemp->n = 1;
-        apTemp->r[0] = regRetorno;
-        apTemp->p[1] = apRetorno;
-        apTemp->p[0] = *ap;
-        *ap = apTemp;
+    if(Cresceu){  // arvore cresce na altura pela raiz
+        ApTemp = (TipoPagina*)malloc(sizeof(TipoPagina));
+        ApTemp->n = 1;
+        ApTemp->r[0] = RegRetorno;
+        ApTemp->p[1] = ApRetorno;
+        ApTemp->p[0] = *Ap;
+        *Ap = ApTemp;
     }
 }
 
-bool Pesquisa(registro *x, apontador *ap, FILE *pArquivo){
+bool Pesquisa(Registro *x, TipoApontador *Ap, FILE *pArquivo){
     //variaveis para metricas
     Metrica metrica;
     metrica.comparacoes = 0;
     metrica.leituras = 0;
-    metrica.escritas = 0;
     metrica.inicio = clock();
 
     int i;
-    apontador pag;
-    pag = *ap;
+    TipoApontador Pag;
+    Pag = *Ap;
 
-    if((*ap)->pt == interna){
+    if((*Ap)->Pt == Interna){
         i = 1;
-        while(i < pag->tipo.pagInt.ni && x->chave > pag->tipo.pagInt.ri[i-1]) 
+        while(i < Pag->UU.U0.ni && x->chave > Pag->UU.U0.ri[i-1]){
+            metrica.comparacoes++;
             i++;
-        if(x->chave < pag->tipo.pagInt.ri[i-1])
-            Pesquisa(x, &pag->tipo.pagInt.pi[i-1]);
+        }   
+
+        metrica.comparacoes++;
+        if(x->chave < Pag->UU.U0.ri[i-1])
+            Pesquisa(x, &Pag->UU.U0.pi[i-1]);
         else
-            Pesquisa(x, &pag->tipo.pagInt.pi[i]);
+            Pesquisa(x, &Pag->UU.U0.pi[i]);
         return;
     }
 
     i = 1;
-    while(i < pag->tipo.pagFolha.ne && x->chave > pag->tipo.pagFolha.re[i-1].chave)
+    while(i < Pag->UU.U1.ne && x->chave > Pag->UU.U1.re[i-1].chave){
+        metrica.comparacoes++;
         i++;
+    }
 
-    if(x->chave == pag->tipo.pagFolha.re[i-1].chave)
-        *x = pag->tipo.pagFolha.re[i-1];
+    metrica.comparacoes++;
+    if(x->chave == Pag->UU.U1.re[i-1].chave)
+        *x = Pag->UU.U1.re[i-1];
         return true;
     else
         return false;
