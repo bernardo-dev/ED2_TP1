@@ -96,13 +96,11 @@ void ins(TipoRegistro Reg, TipoApontadorB Ap, short *Cresceu, TipoRegistro *RegR
             return;
         }
     } else {
-        // Busca binária para encontrar a posição de inserção
         long esq = 0, dir = Ap->UU.U0.ni - 1, meio;
         while (esq <= dir) {
             meio = (esq + dir) / 2;
             metrica.comparacoes++;
             if (Reg.chave == Ap->UU.U0.ri[meio]) {
-                printf("Erro: Registro já está presente");
                 *Cresceu = false;
                 return;
             } 
