@@ -3,8 +3,9 @@
 
 #include "../include/registro.h"
 
+#define M 2
 #define MM 4
-#define MM2 2
+#define MM2 4
 
 typedef enum {Interna, Externa} TipoIntExt;
 
@@ -20,12 +21,16 @@ typedef struct TipoPagina {
         } U0;
         struct {
             int ne;
-            TipoRegistro re[MM2];
+            Registro re[MM2];
         } U1;
     } UU;
 } TipoPagina;
 
 // Protótipos das funções
-void Pesquisa(TipoRegistro *x, Apontador *ap);
+void inicializa(TipoApontador arvore);
+void insereNaPag(TipoApontador Ap, Registro Reg, TipoApontador ApDir);
+void ins(Registro Reg, TipoApontador Ap, short *Cresceu, Registro *RegRetorno, TipoApontador *ApRetorno);
+void insere(Registro Reg, TipoApontador *Ap);
+bool Pesquisa(Registro *x, Apontador *ap);
 
 #endif
