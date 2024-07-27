@@ -2,25 +2,31 @@
 #define ARVOREBIN_H
 
 #include "registro.h"
+#include <stdio.h>
 
-typedef struct no{
-    Registro registro;
-    struct no *esquerda,*direita;
-}No;
-
-typedef struct 
-{
+typedef struct no {
   Registro registro;
-  int posEsquerda,posDireita;
-  
-}NoExterno;
+  struct no *esquerda, *direita;
+} No;
 
-typedef struct arvore{
-    No *raiz;
-}ArvoreBin;
+typedef struct {
+  Registro registro;
+  int posEsquerda, posDireita;
+} NoExterno;
 
+typedef struct arvore {
+  No *raiz;
+} ArvoreBin;
+
+// Insere um registro na arvore binaria
 void inserir(No **no, Registro registro);
-void montaArvore(ArvoreBin *arvore, FILE *arq);
+
+// Monta a arvore binaria a partir de um arquivo de registros
+void montaArvoreBinaria(ArvoreBin *arvore, FILE *arq, int);
+
+// Monta um arquivo binario com a arvore binaria
 void montaArquivo(FILE *arq, No *no, int *pos);
-Registro* buscaChave(FILE *arq, int chave, int posAtual);
-#endif 
+
+// Busca um registro na arvore binaria
+Registro *buscaChave(FILE *arq, int chave, int posAtual);
+#endif

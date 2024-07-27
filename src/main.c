@@ -34,15 +34,17 @@ int main(int argc, char *argv[]) {
   int quantidadeIndices = 0;
   Metrica metrica;
 
-// Variáveis para o método 2
-FILE *arquivoArvore= NULL;
-Registro	*registro;
+  // Variáveis para o método 2
+  FILE *pArquivoArvoreBinaria = NULL;
+  Registro *registro;
+  char nomeArquivoArvoreBinaria[100];
 
   switch (metodo) {
   case 1:
     // imprimirArgumentos(argc, argv);
     if (situacao > 1) {
-      printf("\033[1;31mSituação inválida para o método 1\033[0m\n");
+      printf("\033[1;31mSituação inválida para o método 1 (Acesso Sequencial "
+             "Indexado)\033[0m\n");
       break;
     }
 
@@ -85,7 +87,7 @@ Registro	*registro;
 
       metrica.fim = clock();
 
-      // Imprime as metricas 
+      // Imprime as metricas
       printf("\033[1;32mMetricas criacao arquivo de indices\033[0m\n");
       imprimirMetricas(metrica);
     } else {
@@ -115,48 +117,55 @@ Registro	*registro;
     }
     break;
   case 2:
-    //imprimirArgumentos(argc, argv);
-    if(arquivoArvore = fopen("arvorebin.bin","rb") == NULL) //Não existe árvore feita
-    {
-      // Abre o arquivo necessario para a criação da árvore
-      if(situacao == 1) {arquivoArvore = fopen("crescente.bin","rb"); if(arquivoArvore == NULL){printf("Arquivo de dados nao encontrado!!!!\n"); return 0;}}
-      if(situacao == 2) {arquivoArvore = fopen("decrescente.bin","rb"); if(arquivoArvore == NULL){printf("Arquivo de dados nao encontrado!!!!\n"); return 0;}}
-      if(situacao == 3) {arquivoArvore = fopen("aleatorio.bin","rb"); if(arquivoArvore == NULL){printf("Arquivo de dados nao encontrado!!!!\n"); return 0;}}
+    // imprimirArgumentos(argc, argv);
+    // Forma o nome do arquivo da arvore binaria
+    sprintf(nomeArquivoArvoreBinaria, "arvoreBinaria_%s_%d.bin",
+            situacao == 1   ? "crescente"
+            : situacao == 2 ? "decrescente"
+                            : "aleatorio",
+            quantidade);
 
-      // Monta a árvore em memória interna
-      ArvoreBin arvore = {NULL};
-      montaArvore(&arvore, arquivoArvore);
-			fclose(arquivoArvore);
+    // Tenta abrir o arquivo da arvore binaria
+    pArquivoArvoreBinaria = fopen(nomeArquivoArvoreBinaria, "rb");
+    if (pArquivoArvoreBinaria == NULL) { // Não existe árvore feita
+      // fclose(pArquivoArvoreBinaria);
 
-      // Monta "arvorebin.bin" onde a arvore em memoria externa esta localizada
-      if (arvore.raiz != NULL)
-			{
-				// Cria o arquivo "arvoreBin.bin"
-				arquivoArvore = fopen("arvoreBin.bin", "wb");
-				if (arquivoArvore != NULL)
-				{
-					pos = 0;
-          
-					montaArquivo(arquivoArvore, arvore.raiz, &pos);
-					fclose(arquivoArvore);
-					// Reabre o arquivo "arvoreBin.bin" para leitura
-					arquivoArvore = fopen("arvoreBin.bin", "rb");
-					if (arquivoArvore == NULL)
-					{
-						printf("Erro ao reabrir o arquivo ''arvoreBin.bin'' após criação.\n");
-					}
-				}
-				else
-				{
-					printf("Erro ao criar o arquivo ''arvoreBin.bin''.\n");
-				}
-			}
-			else
-			{
-				printf("Erro ao montar a árvore.\n");
-			}
-		}
-    registro = buscaChave(arquivoArvore, chave, 0);
+      // Monta a árvore em memoria interna
+      ArvoreBin arvore;
+      // Inicializa a raiz da arvore
+      arvore.raiz = NULL;
+      montaArvoreBinaria(&arvore, pArquivoRegistros, quantidade);
+
+      // Se a arvore foi montada em memoria interna
+      if (arvore.raiz != NULL) {
+        // Cria o arquivo para a arvore binaria
+        pArquivoArvoreBinaria = fopen(nomeArquivoArvoreBinaria, "wb");
+        if (pArquivoArvoreBinaria != NULL) { // Se o arquivo foi criado
+          pos = 0;
+
+          montaArquivo(pArquivoArvoreBinaria, arvore.raiz, &pos);
+
+          fclose(pArquivoArvoreBinaria);
+
+          // Reabre o arquivo para leitura
+          pArquivoArvoreBinaria = fopen(nomeArquivoArvoreBinaria, "rb");
+          if (pArquivoArvoreBinaria == NULL) {
+            printf(
+                "Erro ao reabrir o arquivo ''arvoreBin.bin'' após criação.\n");
+                return 0;
+          }
+        } else {
+          printf("\033[1;31mErro ao criar o arquivo %s\033[0m\n",
+                 nomeArquivoArvoreBinaria);
+                 return 0;
+        }
+      } else {
+        printf("\033[1;31mErro ao montar a arvore binaria\033[0m\n");
+        
+        return 0;
+      }
+    }
+    registro = buscaChave(pArquivoArvoreBinaria, chave, 0);
     imprimirRegistro(registro);
     break;
   case 3:

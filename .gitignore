@@ -12,3 +12,6 @@
 
 #ignora .vscode
 .vscode/
+
+# Ignora arquivos .txt
+*.txt
