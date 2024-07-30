@@ -7,32 +7,42 @@
 #define MM 4
 #define MM2 4
 
-typedef long Chave;
+typedef int TipoChave;
 
-typedef enum {Interna, Externa} TipoIntExt;
+typedef Registro TipoRegistro;
 
-typedef struct TipoPagina* TipoApontador;
+typedef enum { Interna, Externa } TipoIntExt;
 
-typedef struct TipoPagina {
-    TipoIntExt Pt;
-    union {
-        struct {
-            int ni;
-            Registro ri[MM]; // que a tipoChave está dentro da struct registro ou Chave = ri[MM]; 
-            TipoApontador pi[MM + 1];
-        } U0;
-        struct {
-            int ne;
-            Registro re[MM2];
-        } U1;
-    } UU;
-} TipoPagina;
+typedef struct TipoPaginaB *TipoApontadorB;
 
-// Protótipos das funções
-void inicializa(TipoApontador arvore);
-void insereNaPag(TipoApontador Ap, Registro Reg, TipoApontador ApDir);
-void ins(Registro Reg, TipoApontador Ap, short *Cresceu, Registro *RegRetorno, TipoApontador *ApRetorno);
-void insere(Registro Reg, TipoApontador *Ap);
-bool Pesquisa(Registro *x, TipoApontador *ap);
+typedef struct TipoPaginaB {
+  TipoIntExt Pt;
+  union {
+    struct {
+      int ni;
+      TipoChave ri[MM]; // que a tipoChave está dentro da struct registro ou
+                        // Chave = ri[MM];
+      TipoApontadorB pi[MM + 1];
+    } U0; // Interna
+    struct {
+      int ne;
+      TipoRegistro re[MM2];
+    } U1; // Externa
+  } UU;
+} TipoPaginaB;
+
+// Inicializa a arvoreB*
+void inicializa(TipoApontadorB arvore);
+
+// Insere na pagina interna
+void insereNaPagInt(TipoApontadorB Ap, TipoRegistro Reg, TipoApontadorB ApDir);
+
+// Insere na pagina externa
+void insereNaPagExt(TipoApontadorB Ap, TipoRegistro Reg);
+
+void ins(Registro Reg, TipoApontadorB Ap, short *Cresceu,
+         TipoRegistro *RegRetorno, TipoApontadorB *ApRetorno);
+void insere(TipoRegistro Reg, TipoApontadorB *Ap);
+bool Pesquisa(TipoRegistro *x, TipoApontadorB *ap);
 
 #endif
