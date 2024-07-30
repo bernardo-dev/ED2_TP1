@@ -116,7 +116,7 @@ int main(int argc, char *argv[]) {
       printf("\033[1;31mItem não encontrado!\033[0m\n");
     }
     break;
-  case 2:
+  case 2: {
     // imprimirArgumentos(argc, argv);
     // Forma o nome do arquivo da arvore binaria
     sprintf(nomeArquivoArvoreBinaria, "arvoreBinaria_%s_%d.bin",
@@ -124,6 +124,9 @@ int main(int argc, char *argv[]) {
             : situacao == 2 ? "decrescente"
                             : "aleatorio",
             quantidade);
+
+    Metrica metrica = {0};
+    metrica.inicio = clock();
 
     // Tenta abrir o arquivo da arvore binaria
     pArquivoArvoreBinaria = fopen(nomeArquivoArvoreBinaria, "rb");
@@ -134,7 +137,12 @@ int main(int argc, char *argv[]) {
       ArvoreBin arvore;
       // Inicializa a raiz da arvore
       arvore.raiz = NULL;
+      clock_t inicioMontagem = clock();
       montaArvoreBinaria(&arvore, pArquivoRegistros, quantidade);
+      clock_t fimMontagem = clock();
+      double tempoMontagem = (double)(fimMontagem - inicioMontagem) / CLOCKS_PER_SEC;
+
+      printf("\033[1;34mTempo para montar a árvore binária em memória interna: %f segundos\033[0m\n", tempoMontagem);
 
       // Se a arvore foi montada em memoria interna
       if (arvore.raiz != NULL) {
@@ -143,7 +151,7 @@ int main(int argc, char *argv[]) {
         if (pArquivoArvoreBinaria != NULL) { // Se o arquivo foi criado
           pos = 0;
 
-          montaArquivo(pArquivoArvoreBinaria, arvore.raiz, &pos);
+          montaArquivo(pArquivoArvoreBinaria, arvore.raiz, &pos, &metrica);
 
           fclose(pArquivoArvoreBinaria);
 
@@ -165,9 +173,19 @@ int main(int argc, char *argv[]) {
         return 0;
       }
     }
-    registro = buscaChave(pArquivoArvoreBinaria, chave, 0);
+    registro = buscaChave(pArquivoArvoreBinaria, chave, 0, &metrica);
+    if(registro == NULL){
+      printf("Registro não encontrado!!\n");
+      return 0;
+    }
     imprimirRegistro(registro);
+
+    metrica.fim = clock();
+    metrica.tempo = (double)(metrica.fim - metrica.inicio) / CLOCKS_PER_SEC;
+
+    imprimirMetricas(metrica);
     break;
+}
   case 3:
     imprimirArgumentos(argc, argv);
     // TODO: Implementar árvore B
