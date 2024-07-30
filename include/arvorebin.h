@@ -3,6 +3,7 @@
 
 #include "registro.h"
 #include <stdio.h>
+#include "utils.h"
 
 typedef struct no {
   Registro registro;
@@ -25,8 +26,8 @@ void inserir(No **no, Registro registro);
 void montaArvoreBinaria(ArvoreBin *arvore, FILE *arq, int);
 
 // Monta um arquivo binario com a arvore binaria
-void montaArquivo(FILE *arq, No *no, int *pos);
+void montaArquivo(FILE *arq, No *no, int *pos, Metrica *metrica);
 
 // Busca um registro na arvore binaria
-Registro *buscaChave(FILE *arq, int chave, int posAtual);
+Registro *buscaChave(FILE *arq, int chave, int posAtual, Metrica *metrica);
 #endif

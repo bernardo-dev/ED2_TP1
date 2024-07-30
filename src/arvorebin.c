@@ -33,7 +33,7 @@ void montaArvoreBinaria(ArvoreBin *arvore, FILE *arq, int quantidade) {
   }
 }
 
-void montaArquivo(FILE *arq, No *no, int *pos) {
+void montaArquivo(FILE *arq, No *no, int *pos, Metrica *metrica) {
   if (no == NULL)
     return;
 
@@ -44,37 +44,43 @@ void montaArquivo(FILE *arq, No *no, int *pos) {
 
   fseek(arq, (*pos) * sizeof(NoExterno), SEEK_SET);
   fwrite(&novoExterno, sizeof(NoExterno), 1, arq);
+  metrica->escritas++;
   int currentPos = *pos;
   (*pos)++;
 
   if (no->esquerda != NULL) {
     int leftPos = *pos;
-    montaArquivo(arq, no->esquerda, pos);
+    montaArquivo(arq, no->esquerda, pos, metrica);
     fseek(arq, currentPos * sizeof(NoExterno), SEEK_SET);
     fread(&novoExterno, sizeof(NoExterno), 1, arq);
+    metrica->leituras++;
     novoExterno.posEsquerda = leftPos;
     fseek(arq, currentPos * sizeof(NoExterno), SEEK_SET);
     fwrite(&novoExterno, sizeof(NoExterno), 1, arq);
+    metrica->escritas++;
   }
 
   if (no->direita != NULL) {
     int rightPos = *pos;
-    montaArquivo(arq, no->direita, pos);
+    montaArquivo(arq, no->direita, pos, metrica);
     fseek(arq, currentPos * sizeof(NoExterno), SEEK_SET);
     fread(&novoExterno, sizeof(NoExterno), 1, arq);
+    metrica->leituras++;
     novoExterno.posDireita = rightPos;
     fseek(arq, currentPos * sizeof(NoExterno), SEEK_SET);
     fwrite(&novoExterno, sizeof(NoExterno), 1, arq);
+    metrica->escritas++;
   }
 }
-
-Registro *buscaChave(FILE *arq, int chave, int posAtual) {
+Registro *buscaChave(FILE *arq, int chave, int posAtual, Metrica *metrica) {
   if (posAtual == -1)
     return NULL;
 
   NoExterno noAtual;
   fseek(arq, posAtual * sizeof(NoExterno), SEEK_SET);
   fread(&noAtual, sizeof(NoExterno), 1, arq);
+  metrica->leituras++;
+  metrica->comparacoes++;
 
   if (noAtual.registro.chave == chave) {
     Registro *registroEncontrado = (Registro *)malloc(sizeof(Registro));
@@ -83,12 +89,11 @@ Registro *buscaChave(FILE *arq, int chave, int posAtual) {
       exit(EXIT_FAILURE);
     }
     *registroEncontrado = noAtual.registro;
-    // Preencha outros campos de registroEncontrado conforme necessário
     return registroEncontrado;
   }
 
   if (chave < noAtual.registro.chave)
-    return buscaChave(arq, chave, noAtual.posEsquerda);
+    return buscaChave(arq, chave, noAtual.posEsquerda, metrica);
   else
-    return buscaChave(arq, chave, noAtual.posDireita);
+    return buscaChave(arq, chave, noAtual.posDireita, metrica);
 }
