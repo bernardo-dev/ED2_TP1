@@ -1,6 +1,6 @@
 #ifndef B_ESTRELA
 #define B_ESTRELA
-
+#include "../include/utils.h"
 #include "../include/registro.h"
 #include <stdbool.h>
 
@@ -35,17 +35,10 @@ typedef struct TipoPaginaB {
 // Inicializa a arvoreB*
 void inicializaBEstrela(TipoApontadorB *arvore);
 
-// Insere na pagina interna
-void insereNaPagInt(TipoApontadorB Ap, TipoChave Chave, TipoApontadorB ApDir);
-
-// Insere na pagina externa
-void insereNaPagExt(TipoApontadorB Ap, TipoRegistro Reg);
-
 // Insere recursivamente na arvore B*
-void insereBEstrela(TipoRegistro Reg, TipoApontadorB *Ap);
-
+void insereBEstrela(TipoRegistro Reg, TipoApontadorB *Ap, Metrica *);
 
 // Pesquisa na arvore B*
-bool pesquisaBEstrela(TipoRegistro *x, TipoApontadorB *Ap);
+bool pesquisaBEstrela(TipoRegistro *x, TipoApontadorB *Ap, Metrica *);
 
 #endif

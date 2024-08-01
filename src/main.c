@@ -198,21 +198,38 @@ int main(int argc, char *argv[]) {
 
     inicializaBEstrela(&arvoreBEst);
 
+    Metrica metricaCriacao;
+    metricaCriacao.inicio = clock();
+    metricaCriacao.leituras = 0;
+
     for (int i = 0; i < quantidade; i++) {
+      metricaCriacao.leituras++;
       if (fread(&registro, sizeof(TipoRegistro), 1, pArquivoRegistros) != 1) {
         printf("Erro ao ler o registro\n");
         return 0;
       }
-      insereBEstrela(registro, &arvoreBEst);
+      insereBEstrela(registro, &arvoreBEst, &metricaCriacao);
     }
+    metricaCriacao.fim = clock();
+    metricaCriacao.tempo = (double)(metricaCriacao.fim - metricaCriacao.inicio) / CLOCKS_PER_SEC;
+    imprimirMetricas(metricaCriacao);
+
+    Metrica metricaPesquisa;
+    metricaPesquisa.inicio = clock();
+    metricaPesquisa.leituras = 0;
 
     registro.chave = chave; // chave a ser pesquisada
-    if (pesquisaBEstrela(&registro, &arvoreBEst)) {
+    if (pesquisaBEstrela(&registro, &arvoreBEst, &metricaPesquisa)) {
+      metricaPesquisa.fim = clock();
       printf("Registro encontrado\n");
       imprimirRegistro(&registro);
     } else {
+      metricaPesquisa.fim = clock();
       printf("Registro não encontrado\n");
     }
+
+    metricaPesquisa.tempo = (double)(metricaPesquisa.fim - metricaPesquisa.inicio) / CLOCKS_PER_SEC;
+    imprimirMetricas(metricaPesquisa);
     break;
   default:
     printf("Método não encontrado\n");
