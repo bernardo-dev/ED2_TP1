@@ -1,10 +1,9 @@
-#include "../include/b_estrela.h"
-#include "../include/registro.h"
-#include "../include/utils.h"
-#include <stdbool.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../include/b_estrela.h"
+#include "../include/utils.h"
 
 void inicializaBEstrela(TipoApontadorB *arvore) {
   (*arvore) = (TipoApontadorB)malloc(sizeof(TipoPaginaB));
@@ -12,7 +11,7 @@ void inicializaBEstrela(TipoApontadorB *arvore) {
   (*arvore)->UU.U1.ne = 0;
 }
 
-void insereNaPagInt(TipoApontadorB Ap, TipoRegistro Reg, TipoApontadorB ApDir) {
+void insereNaPagInt(TipoApontadorB Ap, TipoChave Chave, TipoApontadorB ApDir) {
   // variaveis para metricas
   Metrica metrica;
   metrica.comparacoes = 0;
@@ -24,7 +23,7 @@ void insereNaPagInt(TipoApontadorB Ap, TipoRegistro Reg, TipoApontadorB ApDir) {
   naoAchouPosicao = (k > 0);
   while (naoAchouPosicao) {
     metrica.comparacoes++;
-    if (Reg.chave >= Ap->UU.U0.ri[k - 1]) {
+    if (Chave >= Ap->UU.U0.ri[k - 1]) {
       naoAchouPosicao = false;
       break;
     }
@@ -34,7 +33,7 @@ void insereNaPagInt(TipoApontadorB Ap, TipoRegistro Reg, TipoApontadorB ApDir) {
     if (k < 1)
       naoAchouPosicao = false;
   }
-  Ap->UU.U0.ri[k] = Reg.chave;
+  Ap->UU.U0.ri[k] = Chave;
   Ap->UU.U0.pi[k + 1] = ApDir;
   Ap->UU.U0.ni++;
   return;
@@ -63,7 +62,7 @@ void insereNaPagExt(TipoApontadorB Ap, TipoRegistro Reg) {
   return;
 }
 
-void insBEstrela(Registro Reg, TipoApontadorB Ap, bool *Cresceu,
+void insBEstrela(TipoRegistro Reg, TipoApontadorB Ap, bool *Cresceu,
                  TipoRegistro *RegRetorno, TipoApontadorB *ApRetorno) {
   // variaveis para metricas
   Metrica metrica;
@@ -99,36 +98,33 @@ void insBEstrela(Registro Reg, TipoApontadorB Ap, bool *Cresceu,
       return;
     } else {
       // Tem espaço na página externa
-      insereNaPag(Ap, Reg);
+      insereNaPagExt(Ap, Reg);
       *Cresceu = false;
       return;
     }
   } else {
-    long esq = 0, dir = Ap->UU.U0.ni - 1, meio;
-    while (esq <= dir) {
-      meio = (esq + dir) / 2;
+    while (i < Ap->UU.U0.ni && Reg.chave > Ap->UU.U0.ri[i - 1]) {
       metrica.comparacoes++;
-      if (Reg.chave == Ap->UU.U0.ri[meio]) {
-        *Cresceu = false;
-        return;
-      }
-      metrica.comparacoes++;
-      else if (Reg.chave < Ap->UU.U0.ri[meio]) {
-        dir = meio - 1;
-      }
-      else {
-        esq = meio + 1;
-      }
+      i++;
     }
-    i = esq;
 
-    ins(Reg, Ap->UU.U0.pi[i], Cresceu, RegRetorno, ApRetorno);
+    metrica.comparacoes++;
+    if (Reg.chave == Ap->UU.U0.ri[i - 1]) { // Registro já existe
+      *Cresceu = false;
+      return;
+    }
+
+    metrica.comparacoes++;
+    if (Reg.chave < Ap->UU.U0.ri[i - 1])
+      i--;
+
+    insBEstrela(Reg, Ap->UU.U0.pi[i], Cresceu, RegRetorno, ApRetorno);
 
     if (!*Cresceu)
       return;
 
     if (Ap->UU.U0.ni < MM) {
-      insereNaPag(Ap, RegRetorno->chave, *ApRetorno);
+      insereNaPagInt(Ap, RegRetorno->chave, *ApRetorno);
       *Cresceu = false;
       return;
     }
@@ -139,16 +135,15 @@ void insBEstrela(Registro Reg, TipoApontadorB Ap, bool *Cresceu,
     ApTemp->UU.U0.pi[0] = NULL;
 
     if (i < M + 1) {
-      insereNaPag(ApTemp, Ap->UU.U0.ri[MM - 1], Ap->UU.U0.pi[MM]);
+      insereNaPagInt(ApTemp, Ap->UU.U0.ri[MM - 1], Ap->UU.U0.pi[MM]);
       Ap->UU.U0.ni--;
-      insereNaPag(Ap, RegRetorno->chave, *ApRetorno);
+      insereNaPagInt(Ap, RegRetorno->chave, *ApRetorno);
     } else {
-      insereNaPag(ApTemp, RegRetorno->chave, *ApRetorno);
+      insereNaPagInt(ApTemp, RegRetorno->chave, *ApRetorno);
     }
 
-    for (j = M + 2; j <= MM; j++) {
-      insereNaPag(ApTemp, Ap->UU.U0.ri[j - 1], Ap->UU.U0.pi[j]);
-    }
+    for (j = M + 2; j <= MM; j++)
+      insereNaPagInt(ApTemp, Ap->UU.U0.ri[j - 1], Ap->UU.U0.pi[j]);
 
     Ap->UU.U0.ni = M;
     ApTemp->UU.U0.pi[0] = Ap->UU.U0.pi[M + 1];
@@ -157,103 +152,24 @@ void insBEstrela(Registro Reg, TipoApontadorB Ap, bool *Cresceu,
   }
 }
 
-// void ins(Registro Reg, TipoApontador Ap, short *Cresceu, Registro
-// *RegRetorno, TipoApontador *ApRetorno){
-//     //variaveis para metricas
-//     Metrica metrica;
-//     metrica.comparacoes = 0;
+void insere(TipoRegistro Reg, TipoApontadorB *Ap) {
+  bool Cresceu;
+  TipoRegistro RegRetorno;
+  TipoPaginaB *ApRetorno, *ApTemp;
 
-//     long i = 1;
-//     long j;
-//     TipoApontador ApTemp;
-
-//     if(Ap == NULL){
-//         *Cresceu = TRUE;
-//         (*RegRetorno) = Reg;
-//         (*ApRetorno) = NULL;
-//         return;
-//     }
-
-//     while(i < Ap->n && Reg.chave > Ap->r[i-1].chave){
-//         metrica.comparacoes++;
-//         i++;
-//     }
-
-//     metrica.comparacoes++;
-//     if(Reg.chave == Ap->UU.U0.ri[i-1].chave){ // Registro ja esta presente
-//         *Cresceu = FALSE;
-//         return;
-//     }
-
-//     metrica.comparacoes++;
-//     if(Reg.chave < Ap->r[i-1].chave)
-//         i--;
-
-//     ins(Reg, Ap->p[i], Cresceu, RegRetorno, ApRetorno);
-
-//     if(!*Cresceu)
-//         return;
-
-//     if(Ap->n < MM){ // Pagina tem espaço
-//         insereNaPag(Ap, *RegRetorno, *ApRetorno);
-//         *Cresceu = FALSE;
-//         return;
-//     }
-
-//     // overflow: Pagina tem que ser dividida
-//     ApTemp = (TipoApontador)malloc(sizeof(TipoPagina));
-//     ApTemp->n = 0;
-//     ApTemp->p[0] = NULL;
-
-//     if(i < M+1){
-//         insereNaPag(ApTemp, Ap->r[MM-1], Ap->p[MM]);
-//         Ap->n--;
-//         insereNaPag(Ap, *RegRetorno, *ApRetorno);
-//     }
-//     else
-//         insereNaPag(ApTemp, *RegRetorno, *ApRetorno);
-
-//     for(j=M+2; j<=MM; j++)
-//         insereNaPag(ApTemp, Ap->r[j-1], Ap->p[j]);
-
-//     Ap->n = M;
-
-//     // Tentativa de mesclar com o irmão se houver
-//     if (Ap->p[M + 1]) { // checar se tem um irmão do lado direito
-//         // Tem que fazer a lógica para combinar se o irmão tem mais de n
-//         Registros if (ApTemp->n + Ap->p[M + 1]->n <= MM) {
-//             // Combinar os nós
-//             for (j = 0; j < ApTemp->n; j++) {
-//                 Ap->p[M + 1]->r[Ap->p[M + 1]->n++] = ApTemp->r[j];
-//             }
-//             free(ApTemp); // liberar a memória do nó temporário
-//             return;
-//         }
-//     }
-
-//     Ap->p[M + 1] = ApTemp; // não conseguiu combinar, somente adiciona
-//     *RegRetorno = Ap->r[M];
-//     *ApRetorno = ApTemp;
-// }
-
-void insere(Registro Reg, TipoApontadorB *Ap) {
-  short Cresceu;
-  Registro RegRetorno;
-  TipoPagina *ApRetorno, *ApTemp;
-
-  ins(Reg, *Ap, &Cresceu, &RegRetorno, &ApRetorno);
+  insBEstrela(Reg, *Ap, &Cresceu, &RegRetorno, &ApRetorno);
 
   if (Cresceu) { // arvore cresce na altura pela raiz
-    ApTemp = (TipoPagina *)malloc(sizeof(TipoPagina));
-    ApTemp->n = 1;
-    ApTemp->r[0] = RegRetorno;
-    ApTemp->p[1] = ApRetorno;
-    ApTemp->p[0] = *Ap;
+    ApTemp = (TipoPaginaB *)malloc(sizeof(TipoPaginaB));
+    ApTemp->UU.U0.ni = 1;
+    ApTemp->UU.U0.ri[0] = RegRetorno.chave;
+    ApTemp->UU.U0.pi[1] = ApRetorno;
+    ApTemp->UU.U0.pi[0] = *Ap;
     *Ap = ApTemp;
   }
 }
 
-bool Pesquisa(Registro *x, TipoApontadorB *Ap, FILE *pArquivo) {
+bool Pesquisa(TipoRegistro *x, TipoApontadorB *Ap) {
   // variaveis para metricas
   Metrica metrica;
   metrica.comparacoes = 0;
@@ -273,10 +189,9 @@ bool Pesquisa(Registro *x, TipoApontadorB *Ap, FILE *pArquivo) {
 
     metrica.comparacoes++;
     if (x->chave < Pag->UU.U0.ri[i - 1])
-      Pesquisa(x, &Pag->UU.U0.pi[i - 1]);
+      return Pesquisa(x, &Pag->UU.U0.pi[i - 1]);
     else
-      Pesquisa(x, &Pag->UU.U0.pi[i]);
-    return;
+      return Pesquisa(x, &Pag->UU.U0.pi[i]);
   }
 
   i = 1;

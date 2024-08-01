@@ -2,6 +2,7 @@
 #define B_ESTRELA
 
 #include "../include/registro.h"
+#include <stdbool.h>
 
 #define M 2
 #define MM 4
@@ -35,7 +36,7 @@ typedef struct TipoPaginaB {
 void inicializa(TipoApontadorB arvore);
 
 // Insere na pagina interna
-void insereNaPagInt(TipoApontadorB Ap, TipoRegistro Reg, TipoApontadorB ApDir);
+void insereNaPagInt(TipoApontadorB Ap, TipoChave Chave, TipoApontadorB ApDir);
 
 // Insere na pagina externa
 void insereNaPagExt(TipoApontadorB Ap, TipoRegistro Reg);
@@ -43,6 +44,6 @@ void insereNaPagExt(TipoApontadorB Ap, TipoRegistro Reg);
 void ins(Registro Reg, TipoApontadorB Ap, short *Cresceu,
          TipoRegistro *RegRetorno, TipoApontadorB *ApRetorno);
 void insere(TipoRegistro Reg, TipoApontadorB *Ap);
-bool Pesquisa(TipoRegistro *x, TipoApontadorB *ap);
+bool Pesquisa(TipoRegistro *x, TipoApontadorB *Ap);
 
 #endif
