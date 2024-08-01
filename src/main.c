@@ -1,6 +1,7 @@
 #include "../include/acessoSequencial.h"
 #include "../include/arvorebin.h"
 #include "../include/utils.h"
+#include "../include/b_estrela.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -192,7 +193,26 @@ int main(int argc, char *argv[]) {
     break;
   case 4:
     imprimirArgumentos(argc, argv);
-    // TODO: Implementar árvore B*
+    TipoApontadorB arvoreBEst;
+    TipoRegistro registro;
+
+    inicializaBEstrela(&arvoreBEst);
+
+    for (int i = 0; i < quantidade; i++) {
+      if (fread(&registro, sizeof(TipoRegistro), 1, pArquivoRegistros) != 1) {
+        printf("Erro ao ler o registro\n");
+        return 0;
+      }
+      insereBEstrela(registro, &arvoreBEst);
+    }
+
+    registro.chave = chave; // chave a ser pesquisada
+    if (pesquisaBEstrela(&registro, &arvoreBEst)) {
+      printf("Registro encontrado\n");
+      imprimirRegistro(&registro);
+    } else {
+      printf("Registro não encontrado\n");
+    }
     break;
   default:
     printf("Método não encontrado\n");

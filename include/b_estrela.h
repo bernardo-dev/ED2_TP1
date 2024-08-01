@@ -33,7 +33,7 @@ typedef struct TipoPaginaB {
 } TipoPaginaB;
 
 // Inicializa a arvoreB*
-void inicializa(TipoApontadorB arvore);
+void inicializaBEstrela(TipoApontadorB *arvore);
 
 // Insere na pagina interna
 void insereNaPagInt(TipoApontadorB Ap, TipoChave Chave, TipoApontadorB ApDir);
@@ -41,9 +41,11 @@ void insereNaPagInt(TipoApontadorB Ap, TipoChave Chave, TipoApontadorB ApDir);
 // Insere na pagina externa
 void insereNaPagExt(TipoApontadorB Ap, TipoRegistro Reg);
 
-void ins(Registro Reg, TipoApontadorB Ap, short *Cresceu,
-         TipoRegistro *RegRetorno, TipoApontadorB *ApRetorno);
-void insere(TipoRegistro Reg, TipoApontadorB *Ap);
-bool Pesquisa(TipoRegistro *x, TipoApontadorB *Ap);
+// Insere recursivamente na arvore B*
+void insereBEstrela(TipoRegistro Reg, TipoApontadorB *Ap);
+
+
+// Pesquisa na arvore B*
+bool pesquisaBEstrela(TipoRegistro *x, TipoApontadorB *Ap);
 
 #endif

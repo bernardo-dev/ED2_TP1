@@ -6,7 +6,7 @@
 #include "../include/utils.h"
 
 void inicializaBEstrela(TipoApontadorB *arvore) {
-  (*arvore) = (TipoApontadorB)malloc(sizeof(TipoPaginaB));
+  (*arvore) = (TipoPaginaB*)malloc(sizeof(TipoPaginaB));
   (*arvore)->Pt = Externa;
   (*arvore)->UU.U1.ne = 0;
 }
@@ -40,14 +40,9 @@ void insereNaPagInt(TipoApontadorB Ap, TipoChave Chave, TipoApontadorB ApDir) {
 }
 
 void insereNaPagExt(TipoApontadorB Ap, TipoRegistro Reg) {
-  // variaveis para metricas
-  Metrica metrica;
-  metrica.comparacoes = 0;
-
   int k = Ap->UU.U1.ne;
   bool naoAchouPosicao = (k > 0);
   while (naoAchouPosicao) {
-    metrica.comparacoes++;
     if (Reg.chave >= Ap->UU.U1.re[k - 1].chave) {
       naoAchouPosicao = false;
       break;
@@ -64,10 +59,6 @@ void insereNaPagExt(TipoApontadorB Ap, TipoRegistro Reg) {
 
 void insBEstrela(TipoRegistro Reg, TipoApontadorB Ap, bool *Cresceu,
                  TipoRegistro *RegRetorno, TipoApontadorB *ApRetorno) {
-  // variaveis para metricas
-  Metrica metrica;
-  metrica.comparacoes = 0;
-
   long i = 1, j;
   TipoApontadorB ApTemp;
 
@@ -104,17 +95,14 @@ void insBEstrela(TipoRegistro Reg, TipoApontadorB Ap, bool *Cresceu,
     }
   } else {
     while (i < Ap->UU.U0.ni && Reg.chave > Ap->UU.U0.ri[i - 1]) {
-      metrica.comparacoes++;
       i++;
     }
 
-    metrica.comparacoes++;
     if (Reg.chave == Ap->UU.U0.ri[i - 1]) { // Registro já existe
       *Cresceu = false;
       return;
     }
-
-    metrica.comparacoes++;
+    
     if (Reg.chave < Ap->UU.U0.ri[i - 1])
       i--;
 
@@ -152,7 +140,7 @@ void insBEstrela(TipoRegistro Reg, TipoApontadorB Ap, bool *Cresceu,
   }
 }
 
-void insere(TipoRegistro Reg, TipoApontadorB *Ap) {
+void insereBEstrela(TipoRegistro Reg, TipoApontadorB *Ap) {
   bool Cresceu;
   TipoRegistro RegRetorno;
   TipoPaginaB *ApRetorno, *ApTemp;
@@ -169,13 +157,7 @@ void insere(TipoRegistro Reg, TipoApontadorB *Ap) {
   }
 }
 
-bool Pesquisa(TipoRegistro *x, TipoApontadorB *Ap) {
-  // variaveis para metricas
-  Metrica metrica;
-  metrica.comparacoes = 0;
-  metrica.leituras = 0;
-  metrica.inicio = clock();
-
+bool pesquisaBEstrela(TipoRegistro *x, TipoApontadorB *Ap) {
   int i;
   TipoApontadorB Pag;
   Pag = *Ap;
@@ -183,34 +165,24 @@ bool Pesquisa(TipoRegistro *x, TipoApontadorB *Ap) {
   if ((*Ap)->Pt == Interna) {
     i = 1;
     while (i < Pag->UU.U0.ni && x->chave > Pag->UU.U0.ri[i - 1]) {
-      metrica.comparacoes++;
       i++;
     }
 
-    metrica.comparacoes++;
     if (x->chave < Pag->UU.U0.ri[i - 1])
-      return Pesquisa(x, &Pag->UU.U0.pi[i - 1]);
+      return pesquisaBEstrela(x, &Pag->UU.U0.pi[i - 1]);
     else
-      return Pesquisa(x, &Pag->UU.U0.pi[i]);
+      return pesquisaBEstrela(x, &Pag->UU.U0.pi[i]);
   }
 
   i = 1;
   while (i < Pag->UU.U1.ne && x->chave > Pag->UU.U1.re[i - 1].chave) {
-    metrica.comparacoes++;
     i++;
   }
 
-  metrica.comparacoes++;
   if (x->chave == Pag->UU.U1.re[i - 1].chave) {
     *x = Pag->UU.U1.re[i - 1];
-    metrica.fim = clock();
-    printf("\033[1;34mMetricas Pesquisa Arvore b*\033[0m\n");
-    imprimirMetricas(metrica);
     return true;
   } else {
-    metrica.fim = clock();
-    printf("\033[1;34mMetricas Pesquisa Arvore b*\033[0m\n");
-    imprimirMetricas(metrica);
     return false;
   }
 }
