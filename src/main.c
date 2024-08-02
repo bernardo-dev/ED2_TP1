@@ -2,6 +2,7 @@
 #include "../include/arvorebin.h"
 #include "../include/utils.h"
 #include "../include/b_estrela.h"
+#include "../include/arvoreB.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -187,10 +188,43 @@ int main(int argc, char *argv[]) {
     imprimirMetricas(metrica);
     break;
 }
-  case 3:
-    imprimirArgumentos(argc, argv);
-    // TODO: Implementar árvore B
+case 3: {
+    Metrica metrica = {0};
+    metrica.inicio = clock();
+    metrica.leituras = 0;
+    metrica.escritas = 0;
+    metrica.comparacoes = 0;
+
+    // Inicializa a árvore B
+    TipoApontador arvoreB;
+    inicializaArvoreB(&arvoreB);
+
+    // Lê registros do arquivo e insere na árvore B
+    Registro item;
+
+    for (int i = 0; i < quantidade; i++) {
+        fread(&item, sizeof(Registro), 1, pArquivoRegistros);
+        metrica.leituras++;
+        insereArvoreB(item, &arvoreB, &metrica);
+    }
+
+    // Prepara o item a ser pesquisado
+    item.chave = chave;
+
+    // Realiza a busca na árvore B
+    if (pesquisaArvoreB(&item, arvoreB, &metrica)) {
+        imprimirRegistro(&item);
+        printf("\033[1;32mItem encontrado!\033[0m\n");
+    } else {
+        printf("\033[1;31mItem não encontrado!\033[0m\n");
+    }
+
+    metrica.fim = clock();
+    metrica.tempo = (double)(metrica.fim - metrica.inicio) / CLOCKS_PER_SEC;
+    imprimirMetricas(metrica);
+
     break;
+}
   case 4:
     imprimirArgumentos(argc, argv);
     TipoApontadorB arvoreBEst;
