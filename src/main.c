@@ -226,42 +226,48 @@ case 3: {
     break;
 }
   case 4:
-    imprimirArgumentos(argc, argv);
-    TipoApontadorB arvoreBEst;
-    TipoRegistro registro;
+    imprimirArgumentos(argc, argv); // Função para imprimir os argumentos passados para o programa.
+    TipoApontadorB arvoreBEst;  // Declaração de um ponteiro para a árvore B*.
+    TipoRegistro registro; // Declaração de uma variável do tipo registro.
 
-    inicializaBEstrela(&arvoreBEst);
+    inicializaBEstrela(&arvoreBEst); // Inicializa a árvore B*.
 
+    // Declaração e inicialização de métricas de criação da árvore.
     Metrica metricaCriacao;
     metricaCriacao.inicio = clock();
     metricaCriacao.leituras = 0;
 
     for (int i = 0; i < quantidade; i++) {
-      metricaCriacao.leituras++;
+      metricaCriacao.leituras++; // Incrementa o contador de leituras.
+      // Lê um registro do arquivo.
       if (fread(&registro, sizeof(TipoRegistro), 1, pArquivoRegistros) != 1) {
         printf("Erro ao ler o registro\n");
         return 0;
       }
-      insereBEstrela(registro, &arvoreBEst, &metricaCriacao);
+      insereBEstrela(registro, &arvoreBEst, &metricaCriacao); // Insere o registro na árvore B*.
     }
+    // Armazena o tempo de término, calcula o tempo total gasto e imprime as métricas de criação.
     metricaCriacao.fim = clock();
     metricaCriacao.tempo = (double)(metricaCriacao.fim - metricaCriacao.inicio) / CLOCKS_PER_SEC;
     imprimirMetricas(metricaCriacao);
 
+    // Declaração e inicialização de métricas de pesquisa na árvore.
     Metrica metricaPesquisa;
     metricaPesquisa.inicio = clock();
     metricaPesquisa.leituras = 0;
 
-    registro.chave = chave; // chave a ser pesquisada
+    registro.chave = chave; // Chave a ser pesquisada
+    // Pesquisa o registro na árvore B* e faz a impressão.
     if (pesquisaBEstrela(&registro, &arvoreBEst, &metricaPesquisa)) {
-      metricaPesquisa.fim = clock();
+      metricaPesquisa.fim = clock(); // Finaliza o tempo de pesquisa.
       printf("Registro encontrado\n");
       imprimirRegistro(&registro);
     } else {
-      metricaPesquisa.fim = clock();
+      metricaPesquisa.fim = clock(); // Finaliza o tempo de pesquisa.
       printf("Registro não encontrado\n");
     }
 
+    // Calcula o tempo total gasto e imprime as métricas de pesquisa.
     metricaPesquisa.tempo = (double)(metricaPesquisa.fim - metricaPesquisa.inicio) / CLOCKS_PER_SEC;
     imprimirMetricas(metricaPesquisa);
     break;

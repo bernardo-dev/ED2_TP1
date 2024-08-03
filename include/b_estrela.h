@@ -4,9 +4,9 @@
 #include "../include/registro.h"
 #include <stdbool.h>
 
-#define M 2
-#define MM 4
-#define MM2 4
+#define M 2 // Define a ordem M da árvore B*.
+#define MM 4 // Define MM como 4, usado para determinar o número máximo de chaves na página interna.
+#define MM2 4 // Define MM2 como 4, usado para determinar o número máximo de registros na página externa.
 
 typedef int TipoChave;
 
@@ -21,8 +21,7 @@ typedef struct TipoPaginaB {
   union {
     struct {
       int ni;
-      TipoChave ri[MM]; // que a tipoChave está dentro da struct registro ou
-                        // Chave = ri[MM];
+      TipoChave ri[MM]; 
       TipoApontadorB pi[MM + 1];
     } U0; // Interna
     struct {
