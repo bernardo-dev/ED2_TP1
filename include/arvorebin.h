@@ -30,4 +30,9 @@ void montaArquivo(FILE *arq, No *no, int *pos, Metrica *metrica);
 
 // Busca um registro na arvore binaria
 Registro *buscaChave(FILE *arq, int chave, int posAtual, Metrica *metrica);
+
+void montaArvoreBinariaExterna(ArvoreBin *arvore, FILE *arq, int quantidade, Metrica *metrica);
+
+void inserirExterno(FILE *arq, No **no, Registro registro, int *pos, Metrica *metrica);
+
 #endif
