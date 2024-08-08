@@ -20,10 +20,10 @@ typedef struct arvore {
 } ArvoreBin;
 
 // Insere um registro na arvore binaria
-void inserir(No **no, Registro registro);
+void inserir(No **no, Registro registro, Metrica*);
 
 // Monta a arvore binaria a partir de um arquivo de registros
-void montaArvoreBinaria(ArvoreBin *arvore, FILE *arq, int);
+void montaArvoreBinaria(ArvoreBin *arvore, FILE *arq, int, Metrica*);
 
 // Monta um arquivo binario com a arvore binaria
 void montaArquivo(FILE *arq, No *no, int *pos, Metrica *metrica);
@@ -31,8 +31,6 @@ void montaArquivo(FILE *arq, No *no, int *pos, Metrica *metrica);
 // Busca um registro na arvore binaria
 Registro *buscaChave(FILE *arq, int chave, int posAtual, Metrica *metrica);
 
-void montaArvoreBinariaExterna(ArvoreBin *arvore, FILE *arq, int quantidade, Metrica *metrica);
 
-void inserirExterno(FILE *arq, No **no, Registro registro, int *pos, Metrica *metrica);
 
 #endif
