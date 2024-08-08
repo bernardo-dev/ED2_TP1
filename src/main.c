@@ -205,9 +205,8 @@ int main(int argc, char *argv[]) {
 }
   case 3: {
     Metrica metrica = {0};
-    metrica.inicio = clock();
+    clock_t inicioArvoreB = clock();
     metrica.leituras = 0;
-    metrica.escritas = 0;
     metrica.comparacoes = 0;
 
     // Inicializa a árvore B
@@ -223,19 +222,34 @@ int main(int argc, char *argv[]) {
         insereArvoreB(item, &arvoreB, &metrica);
     }
 
+    clock_t finalArvoreB = clock();
+    double montagemArvoreB = (double)(finalArvoreB - inicioArvoreB) / CLOCKS_PER_SEC;
+
+    printf("\033[1;34mMétrica de criação da árvore B \033[0m\n");
+    printf("\033[1;34mLeituras: %d\033[0m\n", metrica.leituras);
+    printf("\033[1;34mComparações: %d\033[0m\n", metrica.comparacoes);
+    printf("\033[1;34mTempo de montagem Árvore B: %f segundos\033[0m\n", montagemArvoreB);
+
+    printf("\n");
+
+    metrica.inicio = clock();
+    metrica.leituras = 0;
+    metrica.comparacoes = 0;
+
     // Prepara o item a ser pesquisado
     item.chave = chave;
 
     // Realiza a busca na árvore B
     if (pesquisaArvoreB(&item, arvoreB, &metrica)) {
         imprimirRegistro(&item);
-        printf("\033[1;32mItem encontrado!\033[0m\n");
+        printf("\033[1;32mItem encontrado!\033[0m\n\n");
     } else {
-        printf("\033[1;31mItem não encontrado!\033[0m\n");
+        printf("\033[1;31mItem não encontrado!\033[0m\n\n");
     }
 
     metrica.fim = clock();
     metrica.tempo = (double)(metrica.fim - metrica.inicio) / CLOCKS_PER_SEC;
+    printf("\033[1;34mMétrica de pesquisa da árvore B \033[0m\n");
     imprimirMetricas(metrica);
 
     break;
