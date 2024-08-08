@@ -26,8 +26,9 @@ INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 CPPFLAGS := $(INC_FLAGS) -MMD -MP
 
 # The final build step.
-$(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
+$(TARGET_EXEC): $(OBJS)
 	$(CC) $(OBJS) -o $@ $(LDFLAGS)
+	gcc -o analise gerar/pesquisaAutomatica.c -Wall -lm
 
 # Build step for C source
 $(BUILD_DIR)/%.c.o: %.c
@@ -55,3 +56,7 @@ clean:
 valgrind: CFLAGS += -g
 valgrind: $(BUILD_DIR)/$(TARGET_EXEC)
 #	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes $< 1 10000 1 5
+
+.PHONY: analise
+analise: 
+	gcc -o analise gerar/pesquisaAutomatica.c -Wall -lm
