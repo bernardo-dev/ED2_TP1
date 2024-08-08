@@ -144,7 +144,7 @@ int main(int argc, char *argv[]) {
 
         // Captura o tempo de início para a montagem da árvore
         metricaMontagemInterna.inicio = clock();
-        montaArvoreBinaria(&arvore, pArquivoRegistros, quantidade);
+        montaArvoreBinaria(&arvore, pArquivoRegistros, quantidade,&metricaMontagemInterna);
         metricaMontagemInterna.fim = clock();
         metricaMontagemInterna.tempo = (double)(metricaMontagemInterna.fim - metricaMontagemInterna.inicio) / CLOCKS_PER_SEC;
 

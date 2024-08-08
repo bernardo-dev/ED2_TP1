@@ -1,7 +1,7 @@
 #include "../include/arvorebin.h"
 #include <stdlib.h>
 
-void	inserir(No **no, Registro registro)
+void	inserir(No **no, Registro registro, Metrica *metricas)
 {
 	No	*novo;
 
@@ -22,26 +22,30 @@ void	inserir(No **no, Registro registro)
 	{
 		if (registro.chave < (*no)->registro.chave)
 		{
-			inserir(&((*no)->esquerda), registro);
+			metricas->comparacoes++;
+			inserir(&((*no)->esquerda), registro, metricas);
 		}
 		else
 		{
-			inserir(&((*no)->direita), registro);
+			metricas->comparacoes++;
+			inserir(&((*no)->direita), registro, metricas);
 		}
 	}
 }
 
-void	montaArvoreBinaria(ArvoreBin *arvore, FILE *arq, int quantidade)
+void	montaArvoreBinaria(ArvoreBin *arvore, FILE *arq, int quantidade, Metrica *metrica)
 {
 	Registro	registro;
 
 	for (int i = 0; i < quantidade; i++)
 	{
+		metrica->leituras++;
 		if (fread(&registro, sizeof(Registro), 1, arq) != 1)
 		{
 			return ;
 		}
-		inserir(&(arvore->raiz), registro);
+		
+		inserir(&(arvore->raiz), registro, metrica);
 	}
 }
 
