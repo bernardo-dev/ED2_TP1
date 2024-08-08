@@ -1,8 +1,8 @@
 #include "../include/acessoSequencial.h"
-#include "../include/arvorebin.h"
-#include "../include/utils.h"
-#include "../include/b_estrela.h"
 #include "../include/arvoreB.h"
+#include "../include/arvorebin.h"
+#include "../include/b_estrela.h"
+#include "../include/utils.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -42,8 +42,6 @@ int main(int argc, char *argv[]) {
   char nomeArquivoArvoreBinaria[100];
 
   // Variáveis para o método 9
-
-
 
   switch (metodo) {
   case 1: {
@@ -111,14 +109,15 @@ int main(int argc, char *argv[]) {
     item.chave = chave; // chave a ser pesquisada
 
     // Pesquisa a chave na tabela de indices
-    if (pesquisaAcessoSequencial(tabelaIndices, pos, &item,
-                                 pArquivoRegistros, quantidade)) {
+    if (pesquisaAcessoSequencial(tabelaIndices, pos, &item, pArquivoRegistros,
+                                 quantidade)) {
       printf("\033[1;32mItem encontrado!\033[0m\n");
       imprimirRegistro(&item);
     } else {
       printf("\033[1;31mItem não encontrado!\033[0m\n");
     }
-    break;}
+    break;
+  }
   case 2: {
     // imprimirArgumentos(argc, argv);
     // Forma o nome do arquivo da arvore binaria
@@ -135,71 +134,82 @@ int main(int argc, char *argv[]) {
     // Tenta abrir o arquivo da arvore binaria
     pArquivoArvoreBinaria = fopen(nomeArquivoArvoreBinaria, "rb");
     if (pArquivoArvoreBinaria == NULL) { // Não existe árvore feita
-        // Inicializa a raiz da arvore
-        ArvoreBin arvore;
-        arvore.raiz = NULL;
+      // Inicializa a raiz da arvore
+      ArvoreBin arvore;
+      arvore.raiz = NULL;
 
-        // Captura o tempo de início para a montagem da árvore
-        metricaMontagemInterna.inicio = clock();
-        montaArvoreBinaria(&arvore, pArquivoRegistros, quantidade,&metricaMontagemInterna);
-        metricaMontagemInterna.fim = clock();
-        metricaMontagemInterna.tempo = (double)(metricaMontagemInterna.fim - metricaMontagemInterna.inicio) / CLOCKS_PER_SEC;
+      // Captura o tempo de início para a montagem da árvore
+      metricaMontagemInterna.inicio = clock();
+      montaArvoreBinaria(&arvore, pArquivoRegistros, quantidade,
+                         &metricaMontagemInterna);
+      metricaMontagemInterna.fim = clock();
+      metricaMontagemInterna.tempo =
+          (double)(metricaMontagemInterna.fim - metricaMontagemInterna.inicio) /
+          CLOCKS_PER_SEC;
 
-        // Se a arvore foi montada em memoria interna
-        if (arvore.raiz != NULL) {
-            // Cria o arquivo para a arvore binaria
-            pArquivoArvoreBinaria = fopen(nomeArquivoArvoreBinaria, "wb");
-            if (pArquivoArvoreBinaria != NULL) { // Se o arquivo foi criado
-                pos = 0;
-                // Captura o tempo de início para a escrita no arquivo
-                metricaEscritaArquivo.inicio = clock();
-                montaArquivo(pArquivoArvoreBinaria, arvore.raiz, &pos, &metricaEscritaArquivo);
-                fclose(pArquivoArvoreBinaria);
+      // Se a arvore foi montada em memoria interna
+      if (arvore.raiz != NULL) {
+        // Cria o arquivo para a arvore binaria
+        pArquivoArvoreBinaria = fopen(nomeArquivoArvoreBinaria, "wb");
+        if (pArquivoArvoreBinaria != NULL) { // Se o arquivo foi criado
+          pos = 0;
+          // Captura o tempo de início para a escrita no arquivo
+          metricaEscritaArquivo.inicio = clock();
+          montaArquivo(pArquivoArvoreBinaria, arvore.raiz, &pos,
+                       &metricaEscritaArquivo);
+          fclose(pArquivoArvoreBinaria);
 
-                // Reabre o arquivo para leitura
-                pArquivoArvoreBinaria = fopen(nomeArquivoArvoreBinaria, "rb");
-                if (pArquivoArvoreBinaria == NULL) {
-                    printf("Erro ao reabrir o arquivo '%s' após criação.\n", nomeArquivoArvoreBinaria);
-                    return 0;
-                }
-
-                // Captura o tempo de fim para a escrita no arquivo
-                metricaEscritaArquivo.fim = clock();
-                metricaEscritaArquivo.tempo = (double)(metricaEscritaArquivo.fim - metricaEscritaArquivo.inicio) / CLOCKS_PER_SEC;
-            } else {
-                printf("\033[1;31mErro ao criar o arquivo %s\033[0m\n", nomeArquivoArvoreBinaria);
-                return 0;
-            }
-        } else {
-            printf("\033[1;31mErro ao montar a árvore binária\033[0m\n");
+          // Reabre o arquivo para leitura
+          pArquivoArvoreBinaria = fopen(nomeArquivoArvoreBinaria, "rb");
+          if (pArquivoArvoreBinaria == NULL) {
+            printf("Erro ao reabrir o arquivo '%s' após criação.\n",
+                   nomeArquivoArvoreBinaria);
             return 0;
+          }
+
+          // Captura o tempo de fim para a escrita no arquivo
+          metricaEscritaArquivo.fim = clock();
+          metricaEscritaArquivo.tempo = (double)(metricaEscritaArquivo.fim -
+                                                 metricaEscritaArquivo.inicio) /
+                                        CLOCKS_PER_SEC;
+        } else {
+          printf("\033[1;31mErro ao criar o arquivo %s\033[0m\n",
+                 nomeArquivoArvoreBinaria);
+          return 0;
         }
+
+        // Soma montagem interna com escrita no arquivo
+        metricaMontagemInterna.tempo += metricaEscritaArquivo.tempo;
+        metricaMontagemInterna.leituras += metricaEscritaArquivo.leituras;
+        metricaMontagemInterna.comparacoes += metricaEscritaArquivo.comparacoes;
+        printf("\033[1;34mMétricas da montagem criação dos índices:\033[0m\n");
+        imprimirMetricas(metricaMontagemInterna);
+      } else {
+        printf("\033[1;31mErro ao montar a árvore binária\033[0m\n");
+        return 0;
+      }
     }
 
     // Tempo de busca
     metricaBusca.inicio = clock();
     registro = buscaChave(pArquivoArvoreBinaria, chave, 0, &metricaBusca);
     metricaBusca.fim = clock();
-    metricaBusca.tempo = (double)(metricaBusca.fim - metricaBusca.inicio) / CLOCKS_PER_SEC;
+    metricaBusca.tempo =
+        (double)(metricaBusca.fim - metricaBusca.inicio) / CLOCKS_PER_SEC;
 
     if (registro == NULL) {
-        printf("Registro não encontrado!!\n");
+      printf("Registro não encontrado!!\n");
     } else {
-        imprimirRegistro(registro);
+      imprimirRegistro(registro);
     }
 
     // Exibindo métricas
-    printf("\033[1;34mMétricas da montagem interna:\033[0m\n");
-    imprimirMetricas(metricaMontagemInterna);
-
-    printf("\033[1;34mMétricas da escrita no arquivo:\033[0m\n");
-    imprimirMetricas(metricaEscritaArquivo);
 
     printf("\033[1;34mMétricas da busca:\033[0m\n");
     imprimirMetricas(metricaBusca);
 
     break;
-}
+  }
   case 3: {
     Metrica metrica = {0};
     clock_t inicioArvoreB = clock();
@@ -214,18 +224,20 @@ int main(int argc, char *argv[]) {
     Registro item;
 
     for (int i = 0; i < quantidade; i++) {
-        fread(&item, sizeof(Registro), 1, pArquivoRegistros);
-        metrica.leituras++;
-        insereArvoreB(item, &arvoreB, &metrica);
+      fread(&item, sizeof(Registro), 1, pArquivoRegistros);
+      metrica.leituras++;
+      insereArvoreB(item, &arvoreB, &metrica);
     }
 
     clock_t finalArvoreB = clock();
-    double montagemArvoreB = (double)(finalArvoreB - inicioArvoreB) / CLOCKS_PER_SEC;
+    double montagemArvoreB =
+        (double)(finalArvoreB - inicioArvoreB) / CLOCKS_PER_SEC;
 
     printf("\033[1;34mMétrica de criação da árvore B \033[0m\n");
     printf("\033[1;34mLeituras: %d\033[0m\n", metrica.leituras);
     printf("\033[1;34mComparações: %d\033[0m\n", metrica.comparacoes);
-    printf("\033[1;34mTempo de montagem Árvore B: %f segundos\033[0m\n", montagemArvoreB);
+    printf("\033[1;34mTempo de montagem Árvore B: %f segundos\033[0m\n",
+           montagemArvoreB);
 
     printf("\n");
 
@@ -238,10 +250,10 @@ int main(int argc, char *argv[]) {
 
     // Realiza a busca na árvore B
     if (pesquisaArvoreB(&item, arvoreB, &metrica)) {
-        imprimirRegistro(&item);
-        printf("\033[1;32mItem encontrado!\033[0m\n\n");
+      imprimirRegistro(&item);
+      printf("\033[1;32mItem encontrado!\033[0m\n\n");
     } else {
-        printf("\033[1;31mItem não encontrado!\033[0m\n\n");
+      printf("\033[1;31mItem não encontrado!\033[0m\n\n");
     }
 
     metrica.fim = clock();
@@ -250,9 +262,9 @@ int main(int argc, char *argv[]) {
     imprimirMetricas(metrica);
 
     break;
-}
+  }
   case 4: {
-    TipoApontadorB arvoreBEst;  // Declaração de um ponteiro para a árvore B*.
+    TipoApontadorB arvoreBEst; // Declaração de um ponteiro para a árvore B*.
     TipoRegistro registro; // Declaração de uma variável do tipo registro.
 
     inicializaBEstrela(&arvoreBEst); // Inicializa a árvore B*.
@@ -269,11 +281,14 @@ int main(int argc, char *argv[]) {
         printf("Erro ao ler o registro\n");
         return 0;
       }
-      insereBEstrela(registro, &arvoreBEst, &metricaCriacao); // Insere o registro na árvore B*.
+      insereBEstrela(registro, &arvoreBEst,
+                     &metricaCriacao); // Insere o registro na árvore B*.
     }
-    // Armazena o tempo de término, calcula o tempo total gasto e imprime as métricas de criação.
+    // Armazena o tempo de término, calcula o tempo total gasto e imprime as
+    // métricas de criação.
     metricaCriacao.fim = clock();
-    metricaCriacao.tempo = (double)(metricaCriacao.fim - metricaCriacao.inicio) / CLOCKS_PER_SEC;
+    metricaCriacao.tempo =
+        (double)(metricaCriacao.fim - metricaCriacao.inicio) / CLOCKS_PER_SEC;
     printf("Métricas de criação da árvore B*:\n");
     imprimirMetricas(metricaCriacao);
 
@@ -293,13 +308,17 @@ int main(int argc, char *argv[]) {
       printf("Registro não encontrado\n");
     }
 
+    printf("Métricas de pesquisa na árvore B*:\n");
     // Calcula o tempo total gasto e imprime as métricas de pesquisa.
-    metricaPesquisa.tempo = (double)(metricaPesquisa.fim - metricaPesquisa.inicio) / CLOCKS_PER_SEC;
+    metricaPesquisa.tempo =
+        (double)(metricaPesquisa.fim - metricaPesquisa.inicio) / CLOCKS_PER_SEC;
     imprimirMetricas(metricaPesquisa);
-    break;}
-  default:{
+    break;
+  }
+  default: {
     printf("Método não encontrado\n");
-    break;}
+    break;
+  }
   }
 
   fecharArquivoRegistros(pArquivoRegistros);
