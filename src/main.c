@@ -63,7 +63,6 @@ int main(int argc, char *argv[]) {
     // Se não conseguir, cria o arquivo de indices
     if (pArquivoIndices == NULL) {
       metrica.leituras = 0;
-      metrica.escritas = 0;
       metrica.comparacoes = 0;
       metrica.inicio = clock();
       pArquivoIndices = fopen(nomeArquivoIndices, "wb");
@@ -74,10 +73,8 @@ int main(int argc, char *argv[]) {
       // gera a tabela de indice das paginas
       for (int i = 0; i < quantidade; i++) {
         metrica.leituras++;
-        metrica.comparacoes++;
         if (fread(&item, sizeof(TipoItem), 1, pArquivoRegistros) == 1) {
           cont++;
-          metrica.comparacoes++;
           if (cont % ITENSPAGINA == 1) {
             tabelaIndices[pos].chave = item.chave;
             tabelaIndices[pos].posicao = pos + 1;
@@ -87,7 +84,6 @@ int main(int argc, char *argv[]) {
       }
       // grava a tabela de indices no arquivo
       fwrite(tabelaIndices, sizeof(TipoIndice), pos, pArquivoIndices);
-      metrica.escritas++;
 
       fclose(pArquivoIndices);
 
@@ -96,6 +92,7 @@ int main(int argc, char *argv[]) {
       // Imprime as metricas
       printf("\033[1;32mMetricas criacao arquivo de indices\033[0m\n");
       imprimirMetricas(metrica);
+      printf("\n");
     } else {
       // Se conseguir abrir o arquivo de indices
       // Calcula a quantidade de indices
