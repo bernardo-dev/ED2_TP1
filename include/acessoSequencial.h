@@ -18,6 +18,6 @@ typedef Registro TipoItem;
 
 // Funcao que realiza a pesquisa sequencial
 bool pesquisaAcessoSequencial(TipoIndice tabelaIndices[], int tam,
-                              TipoItem *pItem, FILE *pArquivo);
+                              TipoItem *pItem, FILE *pArquivo, int tamArquivo);
 
 #endif

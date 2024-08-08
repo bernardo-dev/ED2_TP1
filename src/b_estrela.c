@@ -82,9 +82,7 @@ void insBEstrela(TipoRegistro Reg, TipoApontadorB Ap, bool *Cresceu, TipoRegistr
   long i = 1, j;  // Variáveis de índice.
   TipoApontadorB ApTemp;  // Ponteiro temporário para nova página.
 
-  metrica->comparacoes++;  
   if (Ap->Pt == Externa) {  // Verifica se a página é externa.
-    metrica->comparacoes++;  
     if (Ap->UU.U1.ne == MM2) {  // Verifica se a página externa está cheia.
       // Não tem espaço na página externa, então é necessário dividir.
       ApTemp = (TipoApontadorB)malloc(sizeof(TipoPaginaB));  // Aloca memória para uma nova página.
@@ -136,11 +134,9 @@ void insBEstrela(TipoRegistro Reg, TipoApontadorB Ap, bool *Cresceu, TipoRegistr
     // Chama recursivamente a função para inserir na subárvore adequada.
     insBEstrela(Reg, Ap->UU.U0.pi[i], Cresceu, RegRetorno, ApRetorno, metrica);
 
-    metrica->comparacoes++;  
     if (!*Cresceu)
       return;  // Se a árvore não cresceu, retorna.
 
-    metrica->comparacoes++;  
     if (Ap->UU.U0.ni < MM) {  // Verifica se há espaço na página interna.
       insereNaPagInt(Ap, RegRetorno->chave, *ApRetorno, metrica);  // Insere o registro na página interna.
       *Cresceu = false;  // Define que a árvore não cresceu.
@@ -153,7 +149,6 @@ void insBEstrela(TipoRegistro Reg, TipoApontadorB Ap, bool *Cresceu, TipoRegistr
     ApTemp->UU.U0.ni = 0;  // Inicializa o número de elementos na nova página como zero.
     ApTemp->UU.U0.pi[0] = NULL;  // Inicializa o primeiro ponteiro da nova página como NULL.
 
-    metrica->comparacoes++;  
     if (i < M + 1) {  // Verifica se a chave está na primeira metade.
       insereNaPagInt(ApTemp, Ap->UU.U0.ri[MM - 1], Ap->UU.U0.pi[MM], metrica);  // Move o último elemento para a nova página.
       Ap->UU.U0.ni--;  // Decrementa o número de elementos na página atual.
@@ -180,7 +175,6 @@ void insereBEstrela(TipoRegistro Reg, TipoApontadorB *Ap, Metrica *metrica) {
 
   insBEstrela(Reg, *Ap, &Cresceu, &RegRetorno, &ApRetorno, metrica);  // Chama a função recursiva para inserir o registro.
 
-  metrica->comparacoes++;  
   if (Cresceu) {  // Verifica se a árvore cresceu na altura pela raiz.
     ApTemp = (TipoPaginaB *)malloc(sizeof(TipoPaginaB));  // Aloca memória para uma nova página.
     ApTemp->UU.U0.ni = 1;  // Inicializa o número de elementos na nova página como um.
@@ -197,7 +191,6 @@ bool pesquisaBEstrela(TipoRegistro *x, TipoApontadorB *Ap, Metrica *metrica) {
   TipoApontadorB Pag;  // Ponteiro para a página atual.
   Pag = *Ap;
 
-  metrica->comparacoes++;  
   if ((*Ap)->Pt == Interna) {  // Verifica se a página é interna.
     i = 1;
     metrica->comparacoes++;  

@@ -44,7 +44,9 @@ $(BUILD_DIR)/%.c.o: %.c
 
 .PHONY: clean
 clean:
-	rm -r $(BUILD_DIR)
+	if [ -d $(BUILD_DIR) ]; then rm -r $(BUILD_DIR); fi
+	if [ -f analise ]; then rm analise; fi
+	if [ -f $(TARGET_EXEC) ]; then rm $(TARGET_EXEC); fi
 
 # Include the .d makefiles. The - at the front suppresses the errors of missing
 # Makefiles. Initially, all the .d files will be missing, and we don't want those
@@ -54,7 +56,7 @@ clean:
 # Build and run valgrind on the built executable
 .PHONY: valgrind
 valgrind: CFLAGS += -g
-valgrind: $(BUILD_DIR)/$(TARGET_EXEC)
+valgrind: $(TARGET_EXEC)
 #	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes $< 1 10000 1 5
 
 .PHONY: analise

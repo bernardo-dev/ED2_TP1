@@ -1,16 +1,16 @@
 #include "../include/acessoSequencial.h"
 #include "../include/utils.h"
+#include <stdio.h>
 
 const int ITENSPAGINA = 1024;
 const int MAXTABELA = 1024;
 
 bool pesquisaAcessoSequencial(TipoIndice tabelaIndices[], int tam,
-                              TipoItem *pItem, FILE *pArquivo) {
+                              TipoItem *pItem, FILE *pArquivo, int tamArquivo) {
   // variaveis para metricas
   Metrica metrica;
   metrica.comparacoes = 0;
   metrica.leituras = 0;
-  metrica.escritas = 0;
   metrica.inicio = clock();
 
   // variaveis para a pesquisa
@@ -28,17 +28,15 @@ bool pesquisaAcessoSequencial(TipoIndice tabelaIndices[], int tam,
 
   // caso a chave desejada seja menor que a primeira chave.
   // o item nao existe no arquivo
-  metrica.comparacoes++;
   if (i == 0) {
     return false;
   } else {
     // a ultima pagina pode nao estar completa
-    metrica.comparacoes++;
     if (i < tam) {
       quantidadeItens = ITENSPAGINA;
     } else {
       // calcula a quantidade de itens na ultima pagina
-      fseek(pArquivo, 0, SEEK_END);
+      fseek(pArquivo, tamArquivo * sizeof(TipoItem), SEEK_SET);
       quantidadeItens = (ftell(pArquivo) / sizeof(TipoItem)) % ITENSPAGINA;
     }
 

@@ -112,7 +112,7 @@ int main(int argc, char *argv[]) {
 
     // Pesquisa a chave na tabela de indices
     if (pesquisaAcessoSequencial(tabelaIndices, pos, &item,
-                                 pArquivoRegistros)) {
+                                 pArquivoRegistros, quantidade)) {
       printf("\033[1;32mItem encontrado!\033[0m\n");
       imprimirRegistro(&item);
     } else {
@@ -252,7 +252,6 @@ int main(int argc, char *argv[]) {
     break;
 }
   case 4: {
-    imprimirArgumentos(argc, argv); // Função para imprimir os argumentos passados para o programa.
     TipoApontadorB arvoreBEst;  // Declaração de um ponteiro para a árvore B*.
     TipoRegistro registro; // Declaração de uma variável do tipo registro.
 
@@ -275,6 +274,7 @@ int main(int argc, char *argv[]) {
     // Armazena o tempo de término, calcula o tempo total gasto e imprime as métricas de criação.
     metricaCriacao.fim = clock();
     metricaCriacao.tempo = (double)(metricaCriacao.fim - metricaCriacao.inicio) / CLOCKS_PER_SEC;
+    printf("Métricas de criação da árvore B*:\n");
     imprimirMetricas(metricaCriacao);
 
     // Declaração e inicialização de métricas de pesquisa na árvore.
